@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#07080f">
+<title>Arman's Awakening OS</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+:root {
+  --sl-bg: #07080f;
+  --sl-panel: #0d0f1a;
+  --sl-card: #10131f;
+  --sl-border: #1a2040;
+  --sl-cyan: #00e5ff;
+  --sl-cyan-dim: rgba(0,229,255,0.12);
+  --sl-purple: #a855f7;
+  --sl-purple-dim: rgba(168,85,247,0.13);
+  --sl-gold: #f59e0b;
+  --sl-green: #10b981;
+  --sl-red: #ef4444;
+  --sl-text: #c8d8f0;
+  --sl-muted: #4a5568;
+  --sl-font: 'Rajdhani', sans-serif;
+  --sl-mono: 'Share Tech Mono', monospace;
+}
+html, body { background: var(--sl-bg); color: var(--sl-text); font-family: var(--sl-font); min-height: 100vh; }
+.sl { padding: 14px; max-width: 600px; margin: 0 auto; }
+
+.sys-header { text-align: center; padding: 16px 0 12px; border-bottom: 1px solid var(--sl-border); margin-bottom: 16px; position: relative; }
+.sys-header::after { content: ''; position: absolute; bottom: -1px; left: 50%; transform: translateX(-50%); width: 140px; height: 1px; background: var(--sl-cyan); }
+.sys-title { font-family: var(--sl-mono); font-size: 10px; color: var(--sl-cyan); letter-spacing: 4px; margin-bottom: 5px; }
+.sys-name { font-size: 24px; font-weight: 700; color: #fff; letter-spacing: 3px; text-transform: uppercase; }
+.sys-sub { font-size: 10px; color: var(--sl-muted); letter-spacing: 2px; margin-top: 3px; font-family: var(--sl-mono); }
+
+.goal-panel { border: 1px solid var(--sl-cyan); background: var(--sl-cyan-dim); border-radius: 3px; padding: 14px 14px 12px; margin-bottom: 14px; position: relative; }
+.goal-panel::before { content: '[ FINAL OBJECTIVE ]'; position: absolute; top: -9px; left: 14px; background: var(--sl-bg); padding: 0 8px; font-family: var(--sl-mono); font-size: 10px; color: var(--sl-cyan); letter-spacing: 2px; }
+.goal-input { width: 100%; background: transparent; border: none; border-bottom: 1px dashed rgba(0,229,255,0.3); border-radius: 0; color: #fff; font-family: var(--sl-font); font-size: 15px; font-weight: 600; padding: 6px 0; letter-spacing: 0.5px; outline: none; }
+.goal-input::placeholder { color: var(--sl-muted); font-weight: 400; }
+
+.stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 14px; }
+.stat-box { background: var(--sl-card); border: 1px solid var(--sl-border); border-radius: 3px; padding: 8px 6px; text-align: center; position: relative; overflow: hidden; }
+.stat-box::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; }
+.stat-box.c::after { background: var(--sl-cyan); }
+.stat-box.p::after { background: var(--sl-purple); }
+.stat-box.g::after { background: var(--sl-gold); }
+.stat-box.gr::after { background: var(--sl-green); }
+.stat-val { font-size: 18px; font-weight: 700; font-family: var(--sl-mono); line-height: 1; }
+.stat-val.cyan { color: var(--sl-cyan); }
+.stat-val.purple { color: var(--sl-purple); font-size: 13px; }
+.stat-val.gold { color: var(--sl-gold); }
+.stat-val.green { color: var(--sl-green); }
+.stat-label { font-size: 9px; color: var(--sl-muted); letter-spacing: 1px; margin-top: 3px; font-family: var(--sl-mono); text-transform: uppercase; }
+
+.xp-section { margin-bottom: 14px; }
+.xp-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+.xp-lbl { font-family: var(--sl-mono); font-size: 9px; color: var(--sl-cyan); letter-spacing: 2px; }
+.xp-val { font-family: var(--sl-mono); font-size: 10px; color: #fff; }
+.xp-track { height: 6px; background: var(--sl-panel); border: 1px solid var(--sl-border); overflow: hidden; margin-bottom: 8px; }
+.xp-fill { height: 100%; background: linear-gradient(90deg, var(--sl-purple), var(--sl-cyan)); transition: width 0.4s; }
+.xp-track.sm { height: 4px; }
+.xp-fill.sm { background: var(--sl-cyan); }
+
+.ribbon-wrap { margin-bottom: 14px; }
+.ribbon-label { font-family: var(--sl-mono); font-size: 9px; color: var(--sl-muted); letter-spacing: 2px; margin-bottom: 7px; }
+.ribbon { display: flex; flex-direction: column; gap: 5px; }
+.day-row { display: flex; align-items: stretch; border: 1px solid var(--sl-border); border-radius: 3px; overflow: hidden; background: var(--sl-panel); transition: border-color 0.15s; }
+.day-row.active { border-color: var(--sl-cyan); background: var(--sl-cyan-dim); }
+.day-row.complete { border-color: var(--sl-green); }
+.day-tag { font-family: var(--sl-mono); font-size: 11px; color: var(--sl-muted); padding: 10px 12px; border-right: 1px solid var(--sl-border); min-width: 72px; display: flex; align-items: center; font-weight: 700; letter-spacing: 1px; cursor: pointer; white-space: nowrap; }
+.day-row.active .day-tag { color: var(--sl-cyan); }
+.day-row.complete .day-tag { color: var(--sl-green); }
+.day-goal-input { flex: 1; background: transparent; border: none; color: var(--sl-text); font-family: var(--sl-font); font-size: 13px; font-weight: 500; padding: 10px 10px; outline: none; min-width: 0; }
+.day-goal-input::placeholder { color: var(--sl-muted); font-weight: 400; font-size: 12px; }
+.day-status { font-family: var(--sl-mono); font-size: 10px; padding: 10px 10px; display: flex; align-items: center; white-space: nowrap; color: var(--sl-muted); border-left: 1px solid var(--sl-border); justify-content: flex-end; }
+.day-status.done { color: var(--sl-green); }
+.day-status.active-s { color: var(--sl-cyan); }
+
+.quest-panel { background: var(--sl-panel); border: 1px solid var(--sl-border); border-radius: 3px; padding: 14px; position: relative; margin-top: 14px; }
+.quest-panel::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, var(--sl-cyan), transparent); }
+.quest-hdr { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px dashed var(--sl-border); flex-wrap: wrap; gap: 6px; }
+.quest-title { font-family: var(--sl-mono); font-size: 11px; color: var(--sl-cyan); letter-spacing: 2px; }
+.day-badge { font-family: var(--sl-mono); font-size: 10px; color: var(--sl-purple); background: var(--sl-purple-dim); border: 1px solid rgba(168,85,247,0.3); padding: 2px 8px; border-radius: 2px; }
+
+.add-row { display: flex; gap: 7px; margin-bottom: 12px; }
+.sl-input { flex: 1; background: var(--sl-card); border: 1px solid var(--sl-border); border-radius: 2px; color: #fff; font-family: var(--sl-font); font-size: 14px; font-weight: 500; padding: 10px 12px; outline: none; min-width: 0; transition: border-color 0.2s; }
+.sl-input:focus { border-color: var(--sl-cyan); }
+.sl-input::placeholder { color: var(--sl-muted); font-weight: 400; }
+.sl-btn { background: var(--sl-cyan-dim); border: 1px solid var(--sl-cyan); color: var(--sl-cyan); font-family: var(--sl-mono); font-size: 11px; font-weight: 700; padding: 10px 14px; cursor: pointer; letter-spacing: 1px; border-radius: 2px; white-space: nowrap; transition: all 0.15s; }
+.sl-btn:active { background: var(--sl-cyan); color: #000; }
+
+.task-list { list-style: none; }
+.task-row { display: flex; align-items: center; gap: 8px; padding: 11px 6px; border-bottom: 1px solid var(--sl-border); }
+.task-row:last-child { border-bottom: none; }
+.task-num { font-family: var(--sl-mono); font-size: 10px; color: var(--sl-muted); min-width: 22px; }
+.task-name { flex: 1; font-size: 15px; font-weight: 500; color: var(--sl-text); letter-spacing: 0.3px; min-width: 0; word-break: break-word; }
+.task-name.done { text-decoration: line-through; color: var(--sl-muted); }
+.task-xp { font-family: var(--sl-mono); font-size: 11px; color: var(--sl-purple); min-width: 50px; text-align: right; }
+.task-xp.earned { color: var(--sl-cyan); }
+.task-del { background: none; border: none; color: var(--sl-muted); cursor: pointer; font-size: 18px; padding: 0 4px; line-height: 1; }
+input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; accent-color: var(--sl-cyan); flex-shrink: 0; }
+
+.empty-msg { text-align: center; padding: 2rem 0; color: var(--sl-muted); font-family: var(--sl-mono); font-size: 11px; letter-spacing: 1px; line-height: 1.8; }
+
+.notes-section { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--sl-border); }
+.notes-label { font-family: var(--sl-mono); font-size: 9px; letter-spacing: 2px; margin-bottom: 4px; }
+.notes-label.green { color: var(--sl-green); }
+.notes-label.red { color: var(--sl-red); }
+.sl-textarea { width: 100%; background: var(--sl-card); border: 1px solid var(--sl-border); border-radius: 2px; color: var(--sl-text); font-family: var(--sl-font); font-size: 13px; padding: 8px; resize: none; outline: none; }
+.sl-textarea:focus { border-color: var(--sl-cyan); }
+.sl-textarea::placeholder { color: var(--sl-muted); }
+
+.sys-footer { text-align: center; margin-top: 14px; padding-bottom: 20px; font-family: var(--sl-mono); font-size: 9px; color: var(--sl-muted); letter-spacing: 2px; }
+</style>
+</head>
+<body>
+<div class="sl">
+  <div class="sys-header">
+    <div class="sys-title">[ SYSTEM NOTICE ]</div>
+    <div class="sys-name">Awakening OS</div>
+    <div class="sys-sub">15-DAY HUNTER SPRINT ∙ ARMAN'S PROTOCOL</div>
+  </div>
+
+  <div class="goal-panel">
+    <input class="goal-input" id="goal-input" type="text" placeholder="Enter your 15-day conquest objective..." oninput="saveGoal()">
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-box c"><div class="stat-val cyan" id="s-level">1</div><div class="stat-label">Level</div></div>
+    <div class="stat-box p"><div class="stat-val purple" id="s-rank">E-Rank</div><div class="stat-label">Rank</div></div>
+    <div class="stat-box g"><div class="stat-val gold" id="s-xp">0</div><div class="stat-label">Total XP</div></div>
+    <div class="stat-box gr"><div class="stat-val green" id="s-days">0</div><div class="stat-label">Days Clear</div></div>
+  </div>
+
+  <div class="xp-section">
+    <div class="xp-row"><span class="xp-lbl">SPRINT XP</span><span class="xp-val" id="xp-label">0 / 1500</span></div>
+    <div class="xp-track"><div class="xp-fill" id="xp-bar" style="width:0%"></div></div>
+    <div class="xp-row"><span class="xp-lbl">TODAY'S XP</span><span class="xp-val" id="day-xp-label">0 / 100</span></div>
+    <div class="xp-track sm"><div class="xp-fill sm" id="day-xp-bar" style="width:0%"></div></div>
+  </div>
+
+  <div class="ribbon-wrap">
+    <div class="ribbon-label">[ HUNTER SCHEDULE — TAP A DAY TO LOAD ]</div>
+    <div class="ribbon" id="ribbon"></div>
+  </div>
+
+  <div class="quest-panel">
+    <div class="quest-hdr">
+      <span class="quest-title" id="quest-title">[ DAY 1 — QUEST LOG ]</span>
+      <span class="day-badge" id="day-badge">0 / 100 XP</span>
+    </div>
+    <div class="add-row">
+      <input class="sl-input" id="task-input" type="text" placeholder="Enter quest name...">
+      <button class="sl-btn" onclick="addTask()">+ ADD</button>
+    </div>
+    <ul class="task-list" id="task-list">
+      <li class="empty-msg">— NO ACTIVE QUESTS —<br>ADD A QUEST TO BEGIN —</li>
+    </ul>
+    <div class="notes-section">
+      <div>
+        <div class="notes-label green">[ RESULT SHIPPED ]</div>
+        <textarea class="sl-textarea" rows="3" id="shipped" placeholder="What did you finish today?" oninput="saveNotes()"></textarea>
+      </div>
+      <div>
+        <div class="notes-label red">[ DAMAGE TAKEN ]</div>
+        <textarea class="sl-textarea" rows="3" id="friction" placeholder="What wasted your time?" oninput="saveNotes()"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <div class="sys-footer">SYSTEM ∙ v3.0 ∙ ARMAN'S PROTOCOL ∙ ALL DATA ENCRYPTED</div>
+</div>
+
+<script>
+let data = { goal: '', currentDay: 1, days: {} };
+function blank() { return { tasks: [], shipped: '', friction: '', dayGoal: '' }; }
+
+function load() {
+  try { const s = localStorage.getItem('sl_arman_v1'); if (s) data = JSON.parse(s); } catch(e) {}
+  for (let i = 1; i <= 15; i++) if (!data.days[i]) data.days[i] = blank();
+  document.getElementById('goal-input').value = data.goal || '';
+  buildRibbon();
+  switchDay(data.currentDay || 1);
+}
+
+function save() {
+  try { localStorage.setItem('sl_arman_v1', JSON.stringify(data)); } catch(e) {}
+  updateStats();
+  buildRibbon();
+}
+
+function saveGoal() { data.goal = document.getElementById('goal-input').value; save(); }
+function saveNotes() {
+  const d = data.currentDay;
+  data.days[d].shipped = document.getElementById('shipped').value;
+  data.days[d].friction = document.getElementById('friction').value;
+  save();
+}
+
+function xpPer(n) { const t = data.days[n].tasks.length; return t ? Math.floor(100 / t) : 0; }
+function dayEarned(n) { return data.days[n].tasks.filter(t => t.done).length * xpPer(n); }
+function totalXP() { let x = 0; for (let i = 1; i <= 15; i++) x += dayEarned(i); return x; }
+function daysClear() {
+  let c = 0;
+  for (let i = 1; i <= 15; i++) { const t = data.days[i].tasks; if (t.length && t.every(q => q.done)) c++; }
+  return c;
+}
+function rankFor(xp) {
+  if (xp >= 1350) return 'S-Rank';
+  if (xp >= 1200) return 'A-Rank';
+  if (xp >= 900) return 'B-Rank';
+  if (xp >= 600) return 'C-Rank';
+  if (xp >= 300) return 'D-Rank';
+  return 'E-Rank';
+}
+
+function updateStats() {
+  const xp = totalXP();
+  const dx = dayEarned(data.currentDay);
+  document.getElementById('s-level').innerText = Math.floor(xp / 100) + 1;
+  document.getElementById('s-rank').innerText = rankFor(xp);
+  document.getElementById('s-xp').innerText = xp;
+  document.getElementById('s-days').innerText = daysClear();
+  document.getElementById('xp-label').innerText = xp + ' / 1500';
+  document.getElementById('xp-bar').style.width = Math.min(Math.round((xp / 1500) * 100), 100) + '%';
+  document.getElementById('day-xp-label').innerText = dx + ' / 100';
+  document.getElementById('day-xp-bar').style.width = Math.min(dx, 100) + '%';
+  document.getElementById('day-badge').innerText = dx + ' / 100 XP';
+}
+
+function buildRibbon() {
+  const ribbon = document.getElementById('ribbon');
+  ribbon.innerHTML = '';
+  for (let i = 1; i <= 15; i++) {
+    const tasks = data.days[i].tasks;
+    const clear = tasks.length && tasks.every(t => t.done);
+    const earned = dayEarned(i);
+    const isActive = i === data.currentDay;
+    const row = document.createElement('div');
+    row.className = 'day-row' + (isActive ? ' active' : '') + (clear ? ' complete' : '');
+    const tag = document.createElement('div');
+    tag.className = 'day-tag';
+    tag.innerText = 'Day ' + i;
+    tag.onclick = () => switchDay(i);
+    const inp = document.createElement('input');
+    inp.type = 'text';
+    inp.className = 'day-goal-input';
+    inp.placeholder = "Day " + i + "'s goal...";
+    inp.value = data.days[i].dayGoal || '';
+    inp.oninput = (e) => { data.days[i].dayGoal = e.target.value; try { localStorage.setItem('sl_arman_v1', JSON.stringify(data)); } catch(e2) {} };
+    inp.onclick = () => switchDay(i);
+    const status = document.createElement('div');
+    status.className = 'day-status' + (clear ? ' done' : isActive ? ' active-s' : '');
+    status.innerText = clear ? '✓ CLEAR' : tasks.length ? earned + '/100' : '—';
+    row.appendChild(tag);
+    row.appendChild(inp);
+    row.appendChild(status);
+    ribbon.appendChild(row);
+  }
+}
+
+function switchDay(n) {
+  data.currentDay = n;
+  document.getElementById('quest-title').innerText = '[ DAY ' + n + ' — QUEST LOG ]';
+  document.getElementById('shipped').value = data.days[n].shipped || '';
+  document.getElementById('friction').value = data.days[n].friction || '';
+  renderTasks();
+  updateStats();
+  buildRibbon();
+}
+
+function addTask() {
+  const inp = document.getElementById('task-input');
+  const name = inp.value.trim();
+  if (!name) return;
+  data.days[data.currentDay].tasks.push({ id: Date.now(), name, done: false });
+  inp.value = '';
+  save();
+  renderTasks();
+}
+
+function toggle(id) {
+  const t = data.days[data.currentDay].tasks.find(t => t.id === id);
+  if (t) t.done = !t.done;
+  save();
+  renderTasks();
+}
+
+function del(id) {
+  data.days[data.currentDay].tasks = data.days[data.currentDay].tasks.filter(t => t.id !== id);
+  save();
+  renderTasks();
+}
+
+function renderTasks() {
+  const list = document.getElementById('task-list');
+  const tasks = data.days[data.currentDay].tasks;
+  const per = xpPer(data.currentDay);
+  list.innerHTML = '';
+  if (!tasks.length) {
+    const li = document.createElement('li');
+    li.className = 'empty-msg';
+    li.innerHTML = '— NO ACTIVE QUESTS —<br>ADD A QUEST TO BEGIN —';
+    list.appendChild(li);
+    return;
+  }
+  tasks.forEach((t, i) => {
+    const li = document.createElement('li');
+    li.className = 'task-row';
+    li.innerHTML =
+      '<span class="task-num">' + String(i + 1).padStart(2, '0') + '</span>' +
+      '<input type="checkbox"' + (t.done ? ' checked' : '') + ' onchange="toggle(' + t.id + ')">' +
+      '<span class="task-name' + (t.done ? ' done' : '') + '">' + t.name + '</span>' +
+      '<span class="task-xp' + (t.done ? ' earned' : '') + '">' + (t.done ? '+' : '') + per + ' XP</span>' +
+      '<button class="task-del" onclick="del(' + t.id + ')" aria-label="Remove">✕</button>';
+    list.appendChild(li);
+  });
+}
+
+document.getElementById('task-input').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') addTask();
+});
+
+load();
+</script>
+</body>
+</html>
