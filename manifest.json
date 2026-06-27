@@ -1,5 +1,6 @@
 {
   "name": "Arman's Awakening OS",
+  "description": "Arman's 15-day hunter sprint tracker",
   "short_name": "AwakeningOS",
   "start_url": "/awakening-os/",
   "display": "standalone",
