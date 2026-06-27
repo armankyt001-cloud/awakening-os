@@ -1,0 +1,20 @@
+{
+  "name": "Arman's Awakening OS",
+  "short_name": "AwakeningOS",
+  "start_url": "/awakening-os/",
+  "display": "standalone",
+  "background_color": "#07080f",
+  "theme_color": "#00e5ff",
+  "icons": [
+    {
+      "src": "https://via.placeholder.com/192x192/07080f/00e5ff?text=AOS",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://via.placeholder.com/512x512/07080f/00e5ff?text=AOS",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
