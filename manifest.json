@@ -1,19 +1,19 @@
 {
   "name": "Arman's Awakening OS",
-  "description": "Arman's 15-day hunter sprint tracker",
   "short_name": "AwakeningOS",
+  "description": "Arman's 15-day hunter sprint tracker",
   "start_url": "/awakening-os/",
   "display": "standalone",
   "background_color": "#07080f",
   "theme_color": "#00e5ff",
   "icons": [
     {
-      "src": "https://via.placeholder.com/192x192/07080f/00e5ff?text=AOS",
+      "src": "https://raw.githubusercontent.com/armankyt001-cloud/awakening-os/main/icon-192.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "https://via.placeholder.com/512x512/07080f/00e5ff?text=AOS",
+      "src": "https://raw.githubusercontent.com/armankyt001-cloud/awakening-os/main/icon-512.png",
       "sizes": "512x512",
       "type": "image/png"
     }
