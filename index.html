@@ -41,8 +41,9 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;background:rad
 
 /* HEADER */
 .sys-header{text-align:center;padding:16px 0 12px;border-bottom:1px solid var(--border);margin-bottom:16px;position:relative;}
+.sys-header-row{position:relative;}
 .sys-header::after{content:'';position:absolute;bottom:-1px;left:50%;transform:translateX(-50%);width:140px;height:1px;background:var(--cyan);box-shadow:0 0 10px var(--cyan);}
-.sys-title{font-family:var(--mono);font-size:10px;color:var(--cyan);letter-spacing:4px;margin-bottom:5px;animation:flicker 6s infinite;}
+.sys-title{font-family:var(--mono);font-size:10px;color:var(--cyan);letter-spacing:4px;margin-bottom:5px;animation:flicker 6s infinite;pointer-events:none;}
 .sys-name{font-size:24px;font-weight:700;color:#fff;letter-spacing:3px;text-transform:uppercase;}
 .sys-sub{font-size:10px;color:var(--muted);letter-spacing:2px;margin-top:3px;font-family:var(--mono);}
 .live-date{font-family:var(--mono);font-size:10px;color:var(--gold);letter-spacing:2px;margin-top:6px;}
@@ -206,6 +207,25 @@ input[type="checkbox"]{width:18px;height:18px;cursor:pointer;accent-color:var(--
 
 .sys-footer{text-align:center;margin-top:14px;padding-bottom:20px;font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:2px;}
 
+/* JARVIS VOICE TOGGLE */
+.jarvis-toggle{position:absolute;top:14px;right:0;z-index:5;display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:9px;letter-spacing:1px;color:var(--muted);background:var(--card);border:1px solid var(--border);border-radius:2px;padding:5px 9px;cursor:pointer;transition:border-color 0.2s,color 0.2s;user-select:none;}
+.jarvis-toggle.on{color:var(--cyan);border-color:var(--cyan);box-shadow:0 0 8px var(--cyan-glow);}
+.jarvis-dot{width:6px;height:6px;border-radius:50%;background:var(--muted);flex-shrink:0;}
+.jarvis-toggle.on .jarvis-dot{background:var(--cyan);box-shadow:0 0 6px var(--cyan);animation:jarvisPulse 1.6s ease infinite;}
+@keyframes jarvisPulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
+
+/* JARVIS CAPTION BAR */
+#jarvis-bar{position:fixed;left:50%;bottom:0;transform:translateX(-50%) translateY(100%);width:100%;max-width:600px;z-index:9986;display:flex;align-items:center;gap:10px;background:linear-gradient(180deg,rgba(13,15,26,0.97),rgba(7,8,15,0.99));border-top:1px solid var(--cyan);padding:12px 16px calc(12px + env(safe-area-inset-bottom));box-shadow:0 -8px 30px rgba(0,229,255,0.08);transition:transform 0.35s cubic-bezier(.4,0,.2,1);}
+#jarvis-bar.show{transform:translateX(-50%) translateY(0);}
+.jarvis-icon{width:30px;height:30px;border-radius:50%;border:1px solid var(--cyan);display:flex;align-items:center;justify-content:center;flex-shrink:0;position:relative;}
+.jarvis-icon-core{width:8px;height:8px;border-radius:50%;background:var(--cyan);box-shadow:0 0 10px var(--cyan);animation:jarvisCore 1.1s ease infinite;}
+@keyframes jarvisCore{0%,100%{transform:scale(1);opacity:1;}50%{transform:scale(1.5);opacity:0.6;}}
+.jarvis-icon::before{content:'';position:absolute;inset:-4px;border-radius:50%;border:1px solid rgba(0,229,255,0.25);animation:jarvisRing 1.6s ease infinite;}
+@keyframes jarvisRing{0%{transform:scale(0.85);opacity:0.8;}100%{transform:scale(1.25);opacity:0;}}
+.jarvis-text-wrap{flex:1;min-width:0;}
+.jarvis-label{font-family:var(--mono);font-size:8px;color:var(--cyan);letter-spacing:3px;margin-bottom:2px;}
+.jarvis-line{font-family:var(--font);font-size:13px;font-weight:500;color:#fff;letter-spacing:0.3px;line-height:1.35;}
+
 /* CHECK ANIMATION */
 @keyframes checkPop{0%{transform:scale(1);}50%{transform:scale(1.4);}100%{transform:scale(1);}}
 .check-pop{animation:checkPop 0.3s ease;}
@@ -245,8 +265,19 @@ input[type="checkbox"]{width:18px;height:18px;cursor:pointer;accent-color:var(--
 
 <div id="toast"></div>
 
+<div id="jarvis-bar">
+  <div class="jarvis-icon"><div class="jarvis-icon-core"></div></div>
+  <div class="jarvis-text-wrap">
+    <div class="jarvis-label">JARVIS</div>
+    <div class="jarvis-line" id="jarvis-line">—</div>
+  </div>
+</div>
+
 <div class="sl" id="main">
   <div class="sys-header">
+    <div class="jarvis-toggle on" id="jarvis-toggle" onclick="toggleJarvis()">
+      <span class="jarvis-dot"></span><span id="jarvis-toggle-label">JARVIS</span>
+    </div>
     <div class="sys-title">[ SYSTEM ACTIVE ]</div>
     <div class="sys-name">Awakening OS</div>
     <div class="sys-sub">ARMAN'S PROTOCOL ∙ UNLIMITED HUNTER SPRINT</div>
@@ -351,6 +382,128 @@ function playBoot() {
 function playMissed() { beep(200,'sawtooth',0.2,0.12); beep(150,'sawtooth',0.2,0.1,0.18); }
 function playDayAdd() { beep(440,'sine',0.1,0.12); beep(550,'sine',0.1,0.1,0.1); beep(660,'sine',0.15,0.1,0.2); }
 
+// ─── JARVIS VOICE ENGINE ─────────────────────────────────────────────────
+let jarvisOn = true;
+let jarvisVoice = null;
+let jarvisQueue = [];
+let jarvisSpeaking = false;
+let jarvisBarTimer = null;
+
+(function initJarvisVoice() {
+  try { const s = localStorage.getItem('sl_jarvis_on'); if(s!==null) jarvisOn = s==='1'; } catch(e) {}
+  if (!('speechSynthesis' in window)) { jarvisOn = false; return; }
+  function pickVoice() {
+    const voices = speechSynthesis.getVoices();
+    if (!voices.length) return;
+    // Prefer a deep/male-leaning English voice for the JARVIS feel; fall back gracefully.
+    const prefs = [
+      v => /male/i.test(v.name) && /en/i.test(v.lang),
+      v => /Daniel|Google UK English Male|Microsoft (David|Guy|Ryan)|Alex|Fred/i.test(v.name),
+      v => /en/i.test(v.lang),
+      v => true
+    ];
+    for (const test of prefs) {
+      const found = voices.find(test);
+      if (found) { jarvisVoice = found; return; }
+    }
+  }
+  pickVoice();
+  if (speechSynthesis.onvoiceschanged !== undefined) speechSynthesis.onvoiceschanged = pickVoice;
+})();
+
+function setJarvisToggleUI() {
+  const el = document.getElementById('jarvis-toggle');
+  const lbl = document.getElementById('jarvis-toggle-label');
+  if (!el) return;
+  el.classList.toggle('on', jarvisOn);
+  if (lbl) lbl.textContent = jarvisOn ? 'JARVIS' : 'JARVIS: MUTED';
+}
+
+function toggleJarvis() {
+  jarvisOn = !jarvisOn;
+  try { localStorage.setItem('sl_jarvis_on', jarvisOn?'1':'0'); } catch(e) {}
+  setJarvisToggleUI();
+  playSelect();
+  if (!jarvisOn) {
+    try { speechSynthesis.cancel(); } catch(e) {}
+    jarvisQueue = []; jarvisSpeaking = false;
+    hideJarvisBar();
+  } else {
+    speak('JARVIS online.');
+  }
+}
+
+function showJarvisBar(text) {
+  const bar = document.getElementById('jarvis-bar');
+  const line = document.getElementById('jarvis-line');
+  if (!bar || !line) return;
+  line.textContent = text;
+  bar.classList.add('show');
+  clearTimeout(jarvisBarTimer);
+  jarvisBarTimer = setTimeout(hideJarvisBar, 4200);
+}
+function hideJarvisBar() {
+  const bar = document.getElementById('jarvis-bar');
+  if (bar) bar.classList.remove('show');
+}
+
+// speak(text) — queues a line; caption always shows, audio only if jarvisOn and TTS is available.
+function speak(text) {
+  if (!text) return;
+  jarvisQueue.push(text);
+  processJarvisQueue();
+}
+function processJarvisQueue() {
+  if (jarvisSpeaking || !jarvisQueue.length) return;
+  const text = jarvisQueue.shift();
+  showJarvisBar(text);
+  if (!jarvisOn || !('speechSynthesis' in window)) {
+    // Caption-only fallback (voice muted or TTS unsupported); pace the queue so lines don't flash by.
+    jarvisSpeaking = true;
+    setTimeout(() => { jarvisSpeaking = false; processJarvisQueue(); }, 1800);
+    return;
+  }
+  try {
+    const utter = new SpeechSynthesisUtterance(text);
+    if (jarvisVoice) utter.voice = jarvisVoice;
+    utter.rate = 0.95; utter.pitch = 0.75; utter.volume = 1;
+    jarvisSpeaking = true;
+    utter.onend = () => { jarvisSpeaking = false; processJarvisQueue(); };
+    utter.onerror = () => { jarvisSpeaking = false; processJarvisQueue(); };
+    speechSynthesis.speak(utter);
+  } catch(e) {
+    jarvisSpeaking = false;
+    setTimeout(processJarvisQueue, 100);
+  }
+}
+
+// Speak a sequence of lines back to back (used for boot, all-clear, rank up, etc.)
+function speakSequence(lines) { lines.forEach(l => speak(l)); }
+
+// ─── JARVIS LINE BANKS ─────────────────────────────────────────────────────
+const JARVIS_LINES = {
+  bootMorning: ['Good morning, Boss.','Systems restored. Good morning, Boss.','Rise and grind, Boss. Good morning.','Another sunrise, another mission, Boss.'],
+  bootAfternoon: ['Good afternoon, Boss.','Systems online. Good afternoon, Boss.','Afternoon, Boss. The system is ready.'],
+  bootEvening: ['Good evening, Boss.','Evening, Boss. Systems online.','Good evening, Boss. Let\'s finish strong.'],
+  bootNight: ['Boss. It\'s late, but the system is online.','Late night session, Boss. I\'m with you.','Good evening, Boss. Burning the midnight oil, I see.'],
+  missionReady: ['Today\'s mission is ready.','Your objectives are loaded, Boss.','The board is set, Boss.','Ready when you are, Boss.'],
+  yesterdayComplete: ['Excellent work, Boss. Yesterday\'s objectives were completed successfully.','Outstanding, Boss. You cleared every mission yesterday.','Yesterday was a clean sweep, Boss. Let\'s surpass it.'],
+  yesterdayMissed: ['Warning, Boss. Yesterday\'s mission was not fully completed.','Heads up, Boss. Outstanding quests have been carried forward.','Some objectives slipped yesterday, Boss. They\'ve been transferred to today.'],
+  questAdded: ['New mission registered.','Quest logged, Boss.','Objective added to the board.','Mission added. Good thinking, Boss.'],
+  taskComplete: ['Quest completed.','Excellent.','XP acquired.','Target neutralized, Boss.','Nicely done.','One down, Boss.'],
+  allTasksComplete: ['Congratulations, Boss. All missions completed. Outstanding performance.','Every objective cleared, Boss. That\'s how it\'s done.','Full clear, Boss. Exceptional work today.'],
+  levelUp: ['Level up. Power increased.','Level up, Boss. You are growing stronger.','New level reached. Power increased.'],
+  rankUp: ['Congratulations, Boss. Rank promotion confirmed.','Rank ascension complete, Boss. Well earned.','A new rank, Boss. The system acknowledges your growth.'],
+  streak7: ['Seven day streak achieved.','One week of consistency, Boss. Impressive.'],
+  streak30: ['Outstanding consistency, Boss.','Thirty days strong. That\'s discipline, Boss.'],
+  streak100: ['Legendary discipline detected, Boss.','One hundred days, Boss. Few reach this point.'],
+  nightReminder: ['Boss. You still have unfinished missions.','It\'s getting late, Boss, and objectives remain open.','Before you rest, Boss — a few quests are still outstanding.']
+};
+function jarvisPick(key) {
+  const arr = JARVIS_LINES[key]; if(!arr||!arr.length) return '';
+  return arr[Math.floor(Math.random()*arr.length)];
+}
+
 // ─── DATE HELPERS ──────────────────────────────────────────────────────────
 function todayStr() {
   const n = new Date();
@@ -433,6 +586,77 @@ function load() {
   switchDay(todayNum);
   prevLevel=getLevelFromXP(totalXP());
   prevRank=getRankInfo(totalXP()).name;
+  setJarvisToggleUI();
+  runJarvisDailyBriefing(today, todayNum);
+}
+
+// ─── JARVIS DAILY BRIEFING ──────────────────────────────────────────────────
+function runJarvisDailyBriefing(today, todayNum) {
+  // Avoid re-running the full greeting if this is just a same-session reload/switch.
+  let alreadyGreetedToday = false;
+  try { alreadyGreetedToday = sessionStorage.getItem('jarvis_greeted')===today; } catch(e) {}
+
+  const hour = new Date().getHours();
+  let timeKey = 'bootMorning';
+  if (hour>=12 && hour<17) timeKey='bootAfternoon';
+  else if (hour>=17 && hour<22) timeKey='bootEvening';
+  else if (hour>=22 || hour<5) timeKey='bootNight';
+
+  if (!alreadyGreetedToday) {
+    speak(jarvisPick(timeKey));
+
+    // Find yesterday's day entry, if it exists, to report on it.
+    const yesterdayStr = dateStrOffset(today, -1);
+    let yesterdayEntry = null;
+    Object.keys(data.days).forEach(k=>{ if(data.days[k].date===yesterdayStr) yesterdayEntry=data.days[k]; });
+
+    if (yesterdayEntry && yesterdayEntry.tasks.length) {
+      const allDone = yesterdayEntry.tasks.every(t=>t.done);
+      if (allDone) speak(jarvisPick('yesterdayComplete'));
+      else speak(jarvisPick('yesterdayMissed'));
+    }
+    speak(jarvisPick('missionReady'));
+
+    // Streak check — count consecutive fully-cleared days ending the most recent locked day.
+    checkJarvisStreak(today);
+
+    try { sessionStorage.setItem('jarvis_greeted', today); } catch(e) {}
+  }
+
+  scheduleJarvisNightCheck(todayNum);
+}
+
+function checkJarvisStreak(today) {
+  const sorted = Object.values(data.days)
+    .filter(d=>d.date && d.date<today)
+    .sort((a,b)=>a.date<b.date?1:-1);
+  let streak=0;
+  for(const d of sorted){
+    if(d.tasks.length && d.tasks.every(t=>t.done)) streak++;
+    else break;
+  }
+  if(streak===7) speak(jarvisPick('streak7'));
+  else if(streak===30) speak(jarvisPick('streak30'));
+  else if(streak===100) speak(jarvisPick('streak100'));
+}
+
+function scheduleJarvisNightCheck(todayNum) {
+  function check() {
+    const hour=new Date().getHours();
+    const t=todayStr();
+    let d=null;
+    Object.keys(data.days).forEach(k=>{ if(data.days[k].date===t) d=data.days[k]; });
+    if(hour>=22 && d && d.tasks.length && !d.tasks.every(t=>t.done)){
+      let alreadyWarned=false;
+      try { alreadyWarned = sessionStorage.getItem('jarvis_night_warned')===t; } catch(e){}
+      if(!alreadyWarned){
+        speak(jarvisPick('nightReminder'));
+        try { sessionStorage.setItem('jarvis_night_warned', t); } catch(e){}
+      }
+    }
+  }
+  check();
+  setInterval(check, 5*60*1000); // re-check every 5 minutes in case the app stays open past 10pm
 }
 
 function save() {
@@ -720,10 +944,12 @@ function addTask() {
   save();
   renderTasks();
   spawnParticles(inp);
+  speak(jarvisPick('questAdded'));
 }
 
 function toggle(id) {
-  const t=data.days[data.currentDay].tasks.find(t=>t.id===id);
+  const dayTasks=data.days[data.currentDay].tasks;
+  const t=dayTasks.find(t=>t.id===id);
   if(t){
     t.done=!t.done;
     if(t.done) playCheck(); else playUncheck();
@@ -733,6 +959,12 @@ function toggle(id) {
   // Spawn particles at checkbox
   const cb=document.querySelector('input[onchange="toggle('+id+')"]');
   if(cb&&t&&t.done) spawnParticles(cb);
+
+  if(t && t.done){
+    const allDone = dayTasks.length && dayTasks.every(x=>x.done);
+    if(allDone) speak(jarvisPick('allTasksComplete'));
+    else speak(jarvisPick('taskComplete'));
+  }
 }
 
 function del(id) {
@@ -785,6 +1017,7 @@ function showLevelUp(level) {
   playLevelUp();
   document.getElementById('lvl-num').innerText=level;
   document.getElementById('lvl-overlay').classList.add('show');
+  speak(jarvisPick('levelUp'));
 }
 function closeLvlOverlay() {
   document.getElementById('lvl-overlay').classList.remove('show');
@@ -805,6 +1038,7 @@ function showRankUp(rank) {
   descEl.innerText=rank.desc;
   burstEl.innerText=rank.emoji;
   document.getElementById('rank-overlay').classList.add('show');
+  speak(jarvisPick('rankUp'));
 }
 function closeRankOverlay() {
   document.getElementById('rank-overlay').classList.remove('show');
@@ -857,6 +1091,7 @@ function boot() {
     if(pct>=100){
       clearInterval(iv);
       status.textContent=msgs[msgs.length-1];
+      speakSequence(['All systems online.', 'I am JARVIS.', 'Mission database synchronized.']);
       setTimeout(()=>{
         const bs=document.getElementById('boot-screen');
         bs.style.transition='opacity 0.6s';
