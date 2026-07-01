@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -20,11 +20,13 @@
   --text:#c8d8f0;--muted:#4a5568;
   --font:'Rajdhani',sans-serif;--mono:'Share Tech Mono',monospace;
   --rank-e:#6b7280;--rank-d:#10b981;--rank-c:#3b82f6;--rank-b:#a855f7;--rank-a:#f59e0b;--rank-s:#ef4444;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
 }
 html,body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:100vh;overflow-x:hidden;}
 
 /* BOOT SCREEN */
-#boot-screen{position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;}
+#boot-screen{position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;padding-top:var(--safe-top);padding-bottom:var(--safe-bottom);}
 .boot-logo{font-family:var(--mono);font-size:clamp(22px,5vw,36px);color:var(--cyan);letter-spacing:6px;text-transform:uppercase;animation:bootPulse 0.6s ease infinite alternate;}
 .boot-sub{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:3px;}
 .boot-bar-wrap{width:240px;height:4px;background:var(--panel);border:1px solid var(--border);overflow:hidden;}
@@ -36,21 +38,18 @@ html,body{background:var(--bg);color:var(--text);font-family:var(--font);min-hei
 body::before{content:'';position:fixed;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.07) 2px,rgba(0,0,0,0.07) 4px);z-index:9998;}
 body::after{content:'';position:fixed;inset:0;pointer-events:none;background:radial-gradient(ellipse at 50% 0%,rgba(0,229,255,0.04) 0%,transparent 70%);z-index:9997;}
 
-.sl{padding:14px;max-width:600px;margin:0 auto;opacity:0;transition:opacity 0.5s;}
+.sl{padding:14px;padding-top:calc(14px + var(--safe-top));padding-bottom:calc(14px + var(--safe-bottom));max-width:600px;margin:0 auto;opacity:0;transition:opacity 0.5s;}
 .sl.visible{opacity:1;}
 
 /* HEADER */
-.sys-header{text-align:center;padding:16px 0 12px;border-bottom:1px solid var(--border);margin-bottom:16px;position:relative;overflow:visible;}
+.sys-header{text-align:center;padding:16px 0 12px;border-bottom:1px solid var(--border);margin-bottom:16px;position:relative;}
 .sys-header-row{position:relative;}
 .sys-header::after{content:'';position:absolute;bottom:-1px;left:50%;transform:translateX(-50%);width:140px;height:1px;background:var(--cyan);box-shadow:0 0 10px var(--cyan);}
-.sys-title{font-family:var(--mono);font-size:10px;color:var(--cyan);letter-spacing:4px;margin-bottom:5px;animation:flicker 6s infinite;pointer-events:none;white-space:nowrap;overflow:visible;}
+.sys-title{font-family:var(--mono);font-size:11px;color:var(--cyan);letter-spacing:4px;margin-bottom:5px;animation:flicker 6s infinite;pointer-events:none;text-shadow:0 0 6px rgba(0,229,255,0.5);}
 .sys-name{font-size:24px;font-weight:700;color:#fff;letter-spacing:3px;text-transform:uppercase;}
 .sys-sub{font-size:10px;color:var(--muted);letter-spacing:2px;margin-top:3px;font-family:var(--mono);}
 .live-date{font-family:var(--mono);font-size:10px;color:var(--gold);letter-spacing:2px;margin-top:6px;}
 @keyframes flicker{0%,98%,100%{opacity:1;}99%{opacity:0.4;}}
-@media (max-width:400px){
-  .sys-title{font-size:9px;letter-spacing:3px;}
-}
 
 /* GOAL PANEL */
 .goal-panel{border:1px solid var(--cyan);background:var(--cyan-dim);border-radius:3px;padding:14px;margin-bottom:14px;position:relative;transition:box-shadow 0.3s;}
@@ -171,7 +170,7 @@ input[type="checkbox"]{width:18px;height:18px;cursor:pointer;accent-color:var(--
 .sl-textarea::placeholder{color:var(--muted);}
 
 /* LEVEL UP OVERLAY */
-#lvl-overlay{position:fixed;inset:0;z-index:9990;display:none;align-items:center;justify-content:center;background:rgba(7,8,15,0.92);}
+#lvl-overlay{position:fixed;inset:0;z-index:9990;display:none;align-items:center;justify-content:center;background:rgba(7,8,15,0.92);padding-top:var(--safe-top);padding-bottom:var(--safe-bottom);}
 #lvl-overlay.show{display:flex;}
 .lvl-card{text-align:center;animation:lvlPop 0.5s cubic-bezier(.36,.07,.19,.97);}
 @keyframes lvlPop{0%{transform:scale(0.3) rotate(-10deg);opacity:0;}60%{transform:scale(1.15) rotate(3deg);opacity:1;}100%{transform:scale(1) rotate(0deg);}}
@@ -185,7 +184,7 @@ input[type="checkbox"]{width:18px;height:18px;cursor:pointer;accent-color:var(--
 .lvl-close:active{background:var(--cyan);color:#000;}
 
 /* RANK UP OVERLAY */
-#rank-overlay{position:fixed;inset:0;z-index:9989;display:none;align-items:center;justify-content:center;background:rgba(7,8,15,0.92);}
+#rank-overlay{position:fixed;inset:0;z-index:9989;display:none;align-items:center;justify-content:center;background:rgba(7,8,15,0.92);padding-top:var(--safe-top);padding-bottom:var(--safe-bottom);}
 #rank-overlay.show{display:flex;}
 .rank-card{text-align:center;animation:rankBoom 0.6s cubic-bezier(.36,.07,.19,.97);}
 @keyframes rankBoom{0%{transform:scale(0) rotate(20deg);opacity:0;}50%{transform:scale(1.2) rotate(-5deg);}100%{transform:scale(1) rotate(0deg);opacity:1;}}
@@ -198,7 +197,7 @@ input[type="checkbox"]{width:18px;height:18px;cursor:pointer;accent-color:var(--
 .rank-close{margin-top:20px;border:1px solid currentColor;font-family:var(--mono);font-size:11px;padding:10px 28px;cursor:pointer;letter-spacing:2px;border-radius:2px;background:transparent;color:inherit;}
 
 /* TOAST */
-#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--card);border:1px solid var(--cyan);color:var(--cyan);font-family:var(--mono);font-size:11px;padding:10px 20px;border-radius:3px;letter-spacing:2px;z-index:9988;transition:transform 0.3s cubic-bezier(.4,0,.2,1),opacity 0.3s;opacity:0;}
+#toast{position:fixed;bottom:calc(24px + var(--safe-bottom));left:50%;transform:translateX(-50%) translateY(80px);background:var(--card);border:1px solid var(--cyan);color:var(--cyan);font-family:var(--mono);font-size:11px;padding:10px 20px;border-radius:3px;letter-spacing:2px;z-index:9988;transition:transform 0.3s cubic-bezier(.4,0,.2,1),opacity 0.3s;opacity:0;}
 #toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
 
 /* PARTICLES */
@@ -210,7 +209,7 @@ input[type="checkbox"]{width:18px;height:18px;cursor:pointer;accent-color:var(--
 
 .sys-footer{text-align:center;margin-top:14px;padding-bottom:20px;font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:2px;}
 
-/* HEADER TOGGLE ROW — replaces old absolute-corner badges, which collided on narrow phones */
+/* HEADER TOGGLE ROW */
 .header-toggle-row{display:flex;justify-content:center;align-items:center;gap:8px;margin-top:10px;flex-wrap:wrap;}
 
 /* JARVIS VOICE TOGGLE */
@@ -228,9 +227,9 @@ input[type="checkbox"]{width:18px;height:18px;cursor:pointer;accent-color:var(--
 }
 
 /* DATA STORE PAGE */
-#datastore-page{position:fixed;inset:0;background:var(--bg);z-index:9992;display:none;flex-direction:column;overflow:hidden;}
+#datastore-page{position:fixed;inset:0;background:var(--bg);z-index:9992;display:none;flex-direction:column;overflow:hidden;padding-top:var(--safe-top);padding-bottom:var(--safe-bottom);}
 #datastore-page.show{display:flex;}
-.ds-header{display:flex;align-items:center;justify-content:space-between;padding:14px;border-bottom:1px solid var(--border);flex-shrink:0;}
+.ds-header{display:flex;align-items:center;justify-content:space-between;padding:14px;padding-top:calc(14px + var(--safe-top));border-bottom:1px solid var(--border);flex-shrink:0;}
 .ds-title{font-family:var(--mono);font-size:13px;color:var(--gold);letter-spacing:3px;}
 .ds-back{background:var(--card);border:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:10px;padding:8px 12px;border-radius:2px;cursor:pointer;letter-spacing:1px;}
 .ds-back:active{border-color:var(--cyan);color:var(--cyan);}
@@ -264,7 +263,7 @@ input[type="checkbox"]{width:18px;height:18px;cursor:pointer;accent-color:var(--
 .ds-log-check{font-size:14px;flex-shrink:0;}
 
 /* JARVIS CAPTION BAR */
-#jarvis-bar{position:fixed;left:50%;bottom:0;transform:translateX(-50%) translateY(100%);width:100%;max-width:600px;z-index:9986;display:flex;align-items:center;gap:10px;background:linear-gradient(180deg,rgba(13,15,26,0.97),rgba(7,8,15,0.99));border-top:1px solid var(--cyan);padding:12px 16px calc(12px + env(safe-area-inset-bottom));box-shadow:0 -8px 30px rgba(0,229,255,0.08);transition:transform 0.35s cubic-bezier(.4,0,.2,1);}
+#jarvis-bar{position:fixed;left:50%;bottom:0;transform:translateX(-50%) translateY(100%);width:100%;max-width:600px;z-index:9986;display:flex;align-items:center;gap:10px;background:linear-gradient(180deg,rgba(13,15,26,0.97),rgba(7,8,15,0.99));border-top:1px solid var(--cyan);padding:12px 16px calc(12px + var(--safe-bottom));box-shadow:0 -8px 30px rgba(0,229,255,0.08);transition:transform 0.35s cubic-bezier(.4,0,.2,1);}
 #jarvis-bar.show{transform:translateX(-50%) translateY(0);}
 .jarvis-icon{width:30px;height:30px;border-radius:50%;border:1px solid var(--cyan);display:flex;align-items:center;justify-content:center;flex-shrink:0;position:relative;}
 .jarvis-icon-core{width:8px;height:8px;border-radius:50%;background:var(--cyan);box-shadow:0 0 10px var(--cyan);animation:jarvisCore 1.1s ease infinite;}
@@ -412,6 +411,7 @@ const STORAGE_KEY = 'sl_arman_v4';
 let data = { goal:'', currentDay:1, days:{}, totalXP:0, startDate:null };
 let prevLevel = 1, prevRank = 'E';
 let audioCtx = null;
+let dsOpen = false; // tracks whether we pushed a history state for the Data Store page
 
 // ─── AUDIO ENGINE ──────────────────────────────────────────────────────────
 function getAudio() {
@@ -461,7 +461,6 @@ let jarvisBarTimer = null;
   function pickVoice() {
     const voices = speechSynthesis.getVoices();
     if (!voices.length) return;
-    // Prefer a deep/male-leaning English voice for the JARVIS feel; fall back gracefully.
     const prefs = [
       v => /male/i.test(v.name) && /en/i.test(v.lang),
       v => /Daniel|Google UK English Male|Microsoft (David|Guy|Ryan)|Alex|Fred/i.test(v.name),
@@ -513,7 +512,6 @@ function hideJarvisBar() {
   if (bar) bar.classList.remove('show');
 }
 
-// speak(text) — queues a line; caption always shows, audio only if jarvisOn and TTS is available.
 function speak(text) {
   if (!text) return;
   jarvisQueue.push(text);
@@ -524,7 +522,6 @@ function processJarvisQueue() {
   const text = jarvisQueue.shift();
   showJarvisBar(text);
   if (!jarvisOn || !('speechSynthesis' in window)) {
-    // Caption-only fallback (voice muted or TTS unsupported); pace the queue so lines don't flash by.
     jarvisSpeaking = true;
     setTimeout(() => { jarvisSpeaking = false; processJarvisQueue(); }, 1800);
     return;
@@ -543,7 +540,6 @@ function processJarvisQueue() {
   }
 }
 
-// Speak a sequence of lines back to back (used for boot, all-clear, rank up, etc.)
 function speakSequence(lines) { lines.forEach(l => speak(l)); }
 
 // ─── JARVIS LINE BANKS ─────────────────────────────────────────────────────
@@ -608,9 +604,6 @@ function getRankInfo(xp) {
 function getLevelFromXP(xp) { return Math.floor(xp/100)+1; }
 
 // ─── DATA ──────────────────────────────────────────────────────────────────
-// poolXP = total XP available to earn on this day. Starts at BASE_DAY_XP (100).
-// If a day locks with unearned XP left, that leftover rolls into the next day's
-// poolXP on top of the base 100 — so a 20/100 day makes tomorrow a 180 XP day.
 const BASE_DAY_XP = 100;
 function blank(date) { return {tasks:[],shipped:'',friction:'',dayGoal:'',date:date||null,locked:false,carriedFrom:null,poolXP:BASE_DAY_XP}; }
 
@@ -621,12 +614,8 @@ function dateStrOffset(base, offset) {
 }
 
 // ─── DATA STORE (ARCHIVE) ───────────────────────────────────────────────────
-// Every time a day locks, a snapshot is pushed here. This is what the Data
-// Store page reads from — it never re-derives from data.days, so it stays
-// fast and stable even after months of history.
 function archiveDay(dayNum, day) {
   if(!data.archive) data.archive=[];
-  // Guard against double-archiving the same date (e.g. app reloaded twice same day)
   if(data.archive.find(a=>a.date===day.date)) return;
   const pool=day.poolXP===undefined?BASE_DAY_XP:day.poolXP;
   const earned=dayEarned(dayNum);
@@ -646,7 +635,6 @@ function archiveDay(dayNum, day) {
     shipped: day.shipped||'',
     friction: day.friction||''
   });
-  // Keep archive sorted by date ascending
   data.archive.sort((a,b)=> a.date<b.date?-1:(a.date>b.date?1:0));
 }
 
@@ -659,7 +647,6 @@ function load() {
   const today=todayStr();
   const tomorrowStr=dateStrOffset(today,1);
 
-  // Find existing today/tomorrow slots
   let todayNum=null, tomorrowNum=null;
   const nums=Object.keys(data.days).map(Number).sort((a,b)=>a-b);
   nums.forEach(n=>{
@@ -667,13 +654,11 @@ function load() {
     if(data.days[n].date===tomorrowStr) tomorrowNum=n;
   });
 
-  // Create today slot if missing
   if(todayNum===null){
     const next=(nums.length?Math.max(...nums):0)+1;
     data.days[next]=blank(today);
     todayNum=next;
   }
-  // Create tomorrow slot if missing
   if(tomorrowNum===null){
     const allNums=Object.keys(data.days).map(Number);
     const next=(allNums.length?Math.max(...allNums):0)+1;
@@ -693,7 +678,6 @@ function load() {
 
 // ─── JARVIS DAILY BRIEFING ──────────────────────────────────────────────────
 function runJarvisDailyBriefing(today, todayNum) {
-  // Avoid re-running the full greeting if this is just a same-session reload/switch.
   let alreadyGreetedToday = false;
   try { alreadyGreetedToday = sessionStorage.getItem('jarvis_greeted')===today; } catch(e) {}
 
@@ -706,7 +690,6 @@ function runJarvisDailyBriefing(today, todayNum) {
   if (!alreadyGreetedToday) {
     speak(jarvisPick(timeKey));
 
-    // Find yesterday's day entry, if it exists, to report on it.
     const yesterdayStr = dateStrOffset(today, -1);
     let yesterdayEntry = null;
     Object.keys(data.days).forEach(k=>{ if(data.days[k].date===yesterdayStr) yesterdayEntry=data.days[k]; });
@@ -718,7 +701,6 @@ function runJarvisDailyBriefing(today, todayNum) {
     }
     speak(jarvisPick('missionReady'));
 
-    // Streak check — count consecutive fully-cleared days ending the most recent locked day.
     checkJarvisStreak(today);
 
     try { sessionStorage.setItem('jarvis_greeted', today); } catch(e) {}
@@ -757,7 +739,7 @@ function scheduleJarvisNightCheck(todayNum) {
     }
   }
   check();
-  setInterval(check, 5*60*1000); // re-check every 5 minutes in case the app stays open past 10pm
+  setInterval(check, 5*60*1000);
 }
 
 function save() {
@@ -776,12 +758,6 @@ function saveNotes() {
 }
 
 // ─── MISSED DAY PROCESSING ─────────────────────────────────────────────────
-// When a day ends: incomplete tasks carry to next day with 'carried:true' flag.
-// AND any unearned XP from that day's poolXP carries forward too, stacked on
-// top of the next day's base 100. So a 20/100 day → next day's poolXP = 180.
-// Per-task XP is then that day's poolXP split across whatever tasks exist,
-// so adding more tasks tomorrow doesn't shrink the leftover — it just spreads
-// the full 180 across more quests.
 function checkAndProcessMissedDays() {
   const today = todayStr();
   const numDays = Object.keys(data.days).length;
@@ -789,13 +765,10 @@ function checkAndProcessMissedDays() {
   for(let i=1; i<=numDays; i++) {
     const day = data.days[i];
     if(!day) continue;
-    if(day.poolXP===undefined) day.poolXP=BASE_DAY_XP; // backfill days saved before this feature
+    if(day.poolXP===undefined) day.poolXP=BASE_DAY_XP;
     if(day.date && day.date < today && !day.locked) {
-      // Lock this past day
       day.locked = true;
-      // Archive a snapshot of this day into the Data Store before anything else changes
       archiveDay(i, day);
-      // Carry incomplete tasks forward (pending apply to next day)
       const incomplete = day.tasks.filter(t => !t.done);
       if(incomplete.length > 0) {
         day._pendingCarry = incomplete.map(t => ({
@@ -806,21 +779,17 @@ function checkAndProcessMissedDays() {
           carriedFromDay: i
         }));
       }
-      // Roll unearned XP forward: whatever wasn't earned out of this day's pool
-      // gets added on top of the next day's base pool.
       const earned = dayEarned(i);
       const leftover = Math.max(day.poolXP - earned, 0);
       day._pendingXPCarry = leftover;
     }
   }
 
-  // Find today's day index
   let todayDayNum = null;
   for(let i=1; i<=numDays; i++) {
     if(data.days[i] && data.days[i].date === today) { todayDayNum = i; break; }
   }
 
-  // Apply pending carries to today's day
   if(todayDayNum) {
     const prevNum = todayDayNum - 1;
     if(prevNum >= 1 && data.days[prevNum]) {
@@ -828,7 +797,6 @@ function checkAndProcessMissedDays() {
       if(prevDay._pendingCarry) {
         const carry = prevDay._pendingCarry;
         carry.forEach(ct => {
-          // Avoid duplicates
           if(!data.days[todayDayNum].tasks.find(t => t.name === ct.name && t.carried)) {
             data.days[todayDayNum].tasks.unshift(ct);
           }
@@ -836,8 +804,6 @@ function checkAndProcessMissedDays() {
         delete prevDay._pendingCarry;
       }
       if(prevDay._pendingXPCarry) {
-        // Stack leftover XP on top of today's base pool (only once — guard against
-        // re-running this on every load by checking a flag on today's day).
         if(!data.days[todayDayNum]._xpCarriedIn){
           data.days[todayDayNum].poolXP = BASE_DAY_XP + prevDay._pendingXPCarry;
           data.days[todayDayNum]._xpCarriedIn = true;
@@ -847,23 +813,16 @@ function checkAndProcessMissedDays() {
     }
   }
 
-  // Update currentDay to today if today exists
   if(todayDayNum) data.currentDay = todayDayNum;
 }
 
 // ─── XP CALCULATION ────────────────────────────────────────────────────────
-// Each day has a poolXP total (base 100, or 100 + yesterday's leftover if XP
-// rolled forward), split equally across ALL tasks (original + carried).
-// Carried tasks keep their original per-task value (no penalty — full XP).
-// If you only complete 70% of tasks, the remaining 30% XP rolls into tomorrow's pool.
-
 function dayPool(n) {
   const d = data.days[n]; if(!d) return BASE_DAY_XP;
   return d.poolXP===undefined ? BASE_DAY_XP : d.poolXP;
 }
 
 function xpPerTask(n) {
-  // Equal split of this day's XP pool across all tasks in this day
   const d = data.days[n]; if(!d) return 0;
   const total = d.tasks.length;
   const pool = dayPool(n);
@@ -877,7 +836,6 @@ function dayEarned(n) {
 }
 
 function dayTotal(n) {
-  // Max possible XP for a day (accounts for rounding)
   const d = data.days[n]; if(!d) return BASE_DAY_XP;
   const total = d.tasks.length;
   const pool = dayPool(n);
@@ -909,7 +867,6 @@ function updateStats() {
   const levelXP=xp%100;
   const rankXP=xp-rank.min;
 
-  // Animate stat boxes if changed
   const lvlEl=document.getElementById('s-level');
   if(lvlEl.innerText!=String(level)){lvlEl.parentElement.classList.add('pop');setTimeout(()=>lvlEl.parentElement.classList.remove('pop'),400);}
   lvlEl.innerText=level;
@@ -923,7 +880,6 @@ function updateStats() {
   document.getElementById('day-xp-bar').style.width=Math.min(Math.round((dx/Math.max(dMax,1))*100),100)+'%';
   document.getElementById('day-badge').innerText=dx+' / '+dMax+' XP';
 
-  // Show a note when today's pool is boosted above the base 100 (XP carried in from yesterday)
   const curDay=data.days[data.currentDay];
   const carryRow=document.getElementById('carry-note-row');
   if(curDay && carryRow){
@@ -937,11 +893,9 @@ function updateStats() {
     }
   }
 
-  // Rank progress bar
   const rankRange = rank.max === Infinity ? 500 : rank.max - rank.min;
   document.getElementById('rank-xp-label').innerText=xp+' / '+(rank.max===Infinity?'∞':rank.max)+' XP';
 
-  // Build rank segments
   const segs=document.getElementById('rank-segs');
   segs.innerHTML='';
   const totalSegs=10;
@@ -952,12 +906,10 @@ function updateStats() {
     segs.appendChild(seg);
   }
 
-  // Check level up
   if(level>prevLevel) {
     showLevelUp(level);
     prevLevel=level;
   }
-  // Check rank up
   if(rank.name!==prevRank && xp>0) {
     showRankUp(rank);
     prevRank=rank.name;
@@ -965,14 +917,12 @@ function updateStats() {
 }
 
 // ─── RIBBON ────────────────────────────────────────────────────────────────
-// Only show today + tomorrow. Past locked days are hidden from the ribbon.
 function buildRibbon() {
   const ribbon=document.getElementById('ribbon');
   ribbon.innerHTML='';
   const today=todayStr();
   const tomorrowStr=dateStrOffset(today,1);
 
-  // Collect only today and tomorrow day numbers
   const visibleNums=[];
   Object.keys(data.days).map(Number).sort((a,b)=>a-b).forEach(n=>{
     const d=data.days[n];
@@ -1040,12 +990,10 @@ function switchDay(n) {
   playSelect();
   document.getElementById('quest-title').innerText='[ DAY '+n+' — QUEST LOG ]';
 
-  // Check if day is locked (past day)
   const body=document.getElementById('quest-body');
   if(d.locked&&d.date&&d.date<today) {
     const earned=dayEarned(n);
     const dMax=dayTotal(n);
-    // Show read-only view
     body.innerHTML='<div class="lock-msg">⛔ QUEST LOG LOCKED<br><br>'+
       'Day '+n+' ('+formatDate(d.date)+') has passed.<br>'+
       'Incomplete quests were carried forward to the next day.<br><br>'+
@@ -1063,7 +1011,6 @@ function switchDay(n) {
     return;
   }
 
-  // Active day
   body.innerHTML='<div class="add-row"><input class="sl-input" id="task-input" type="text" placeholder="Enter quest name..."><button class="sl-btn" onclick="addTask()">+ ADD</button></div>'+
     '<ul class="task-list" id="task-list"></ul>'+
     '<div class="notes-section"><div><div class="notes-label green">[ RESULT SHIPPED ]</div>'+
@@ -1102,7 +1049,6 @@ function toggle(id) {
   }
   save();
   renderTasks();
-  // Spawn particles at checkbox
   const cb=document.querySelector('input[onchange="toggle('+id+')"]');
   if(cb&&t&&t.done) spawnParticles(cb);
 
@@ -1135,7 +1081,6 @@ function renderTasks() {
     list.appendChild(li);
     return;
   }
-  // Show XP distribution note if there are tasks
   const totalPossible = tasks.length * perTask;
   const noteEl = document.createElement('li');
   noteEl.style.cssText='padding:6px 6px 10px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;';
@@ -1150,7 +1095,7 @@ function renderTasks() {
     const carryBadge=t.carried?'<span class="carry-badge">↻ CARRIED</span>':'';
     li.innerHTML=
       '<span class="task-num">'+String(i+1).padStart(2,'0')+'</span>'+
-      '<input type="checkbox"'+(t.done?' checked':'')+(d.locked?' disabled':'')+' onchange="toggle('+t.id+')">'+ 
+      '<input type="checkbox"'+(t.done?' checked':'')+(d.locked?' disabled':'')+' onchange="toggle('+t.id+')">'+
       '<span class="task-name'+(t.done?' done':'')+(t.carried&&!t.done?' carried':'')+'">'+t.name+carryBadge+'</span>'+
       '<span class="task-xp'+(t.done?' earned':'')+'">+'+ perTask+' XP</span>'+
       (d.locked?'':'<button class="task-del" onclick="del('+t.id+')" aria-label="Remove">✕</button>');
@@ -1219,35 +1164,44 @@ function spawnParticles(el) {
 }
 
 // ─── DATA STORE PAGE ────────────────────────────────────────────────────────
-let dsRange = 7; // 7, 30, or 'all'
+let dsRange = 7;
 
-// openDataStore/closeDataStore now push/pop a history entry so the phone's
-// back button (or swipe-back gesture) closes the Data Store overlay instead
-// of leaving the app entirely.
 function openDataStore() {
   playSelect();
   document.getElementById('datastore-page').classList.add('show');
+  // Push a history state so the phone's back button / swipe returns to main view
+  if (!dsOpen) {
+    history.pushState({page: 'datastore'}, '');
+    dsOpen = true;
+  }
   renderDataStore();
-  try { history.pushState({ ds: true }, ''); } catch(e) {}
 }
-function closeDataStore(skipHistory) {
+
+function closeDataStore() {
   playSelect();
   document.getElementById('datastore-page').classList.remove('show');
-  if (!skipHistory) {
-    try {
-      if (history.state && history.state.ds) history.back();
-    } catch(e) {}
+  // Clean up the history state we pushed — this keeps the back stack tidy
+  if (dsOpen) {
+    dsOpen = false;
+    history.back();
   }
 }
-window.addEventListener('popstate', () => {
-  const ds = document.getElementById('datastore-page');
-  if (ds && ds.classList.contains('show')) {
-    closeDataStore(true);
+
+// ─── HANDLE PHONE BACK BUTTON / SWIPE GESTURE ──────────────────────────────
+window.addEventListener('popstate', function(e) {
+  // If the Data Store page is currently visible and the user pressed back,
+  // close it instead of navigating away from the app entirely.
+  const dsPage = document.getElementById('datastore-page');
+  if (dsOpen && dsPage && dsPage.classList.contains('show')) {
+    dsPage.classList.remove('show');
+    dsOpen = false;
+    // Prevent the browser from navigating further — we handled it.
+    // (The history entry was already popped by the back gesture.)
   }
 });
 
 function dsGetEntries() {
-  const all = (data.archive||[]).slice(); // already sorted ascending by date
+  const all = (data.archive||[]).slice();
   if(dsRange==='all') return all;
   return all.slice(Math.max(all.length-dsRange,0));
 }
@@ -1269,7 +1223,6 @@ function renderDataStore() {
 
   let html='';
 
-  // Summary cards
   html+='<div class="ds-summary-grid">'+
     '<div class="ds-summary-box"><div class="ds-summary-val">'+archive.length+'</div><div class="ds-summary-lbl">Days Logged</div></div>'+
     '<div class="ds-summary-box"><div class="ds-summary-val">'+clearedCount+'</div><div class="ds-summary-lbl">Full Clears</div></div>'+
@@ -1277,7 +1230,6 @@ function renderDataStore() {
     '<div class="ds-summary-box"><div class="ds-summary-val">'+avgPct+'%</div><div class="ds-summary-lbl">Avg Daily Clear</div></div>'+
   '</div>';
 
-  // Range tabs + chart
   html+='<div class="ds-section-lbl">[ XP TREND ]</div>';
   html+='<div class="ds-range-tabs">'+
     '<div class="ds-range-tab'+(dsRange===7?' active':'')+'" onclick="setDsRange(7)">7 DAYS</div>'+
@@ -1291,7 +1243,6 @@ function renderDataStore() {
       '<div class="ds-legend-item"><span class="ds-legend-dot" style="background:var(--green);border-radius:50%;"></span>Full Clear</div>'+
     '</div></div>';
 
-  // Log
   html+='<div class="ds-section-lbl">[ HUNTER HISTORY ]</div>';
   if(!entries.length){
     html+='<div class="ds-empty">No days in this range yet.</div>';
@@ -1326,10 +1277,6 @@ function escapeHtml(s) {
   return d.innerHTML;
 }
 
-// Lightweight canvas bar chart — no external libraries needed.
-// Draws XP earned (gold bars) against XP possible (outline) per day, with a
-// green dot above any day that was fully cleared. Scales to whatever range
-// of entries is passed in (7 / 30 / all).
 function drawDsChart(entries) {
   const canvas=document.getElementById('ds-canvas');
   if(!canvas||!entries.length) return;
@@ -1349,9 +1296,8 @@ function drawDsChart(entries) {
   const chartW=cssWidth-padL-padR;
   const chartH=cssHeight-padT-padB;
   const maxPool=Math.max(...entries.map(e=>e.poolXP),100);
-  const niceMax=Math.ceil(maxPool/50)*50; // round up to nearest 50 for cleaner gridlines
+  const niceMax=Math.ceil(maxPool/50)*50;
 
-  // Gridlines + Y axis labels
   ctx.strokeStyle='rgba(255,255,255,0.06)';
   ctx.fillStyle='#4a5568';
   ctx.font='9px monospace';
@@ -1378,16 +1324,13 @@ function drawDsChart(entries) {
     const poolY=padT+chartH-poolH;
     const earnY=padT+chartH-earnH;
 
-    // Possible-XP outline bar
     ctx.strokeStyle='rgba(74,85,104,0.6)';
     ctx.lineWidth=1;
     ctx.strokeRect(cx-barW/2,poolY,barW,poolH);
 
-    // Earned-XP filled bar
     ctx.fillStyle=e.cleared?'#10b981':'#f59e0b';
     ctx.fillRect(cx-barW/2,earnY,barW,Math.max(earnH,1));
 
-    // Full-clear dot marker above the bar
     if(e.cleared){
       ctx.beginPath();
       ctx.arc(cx,poolY-8,3,0,Math.PI*2);
@@ -1395,7 +1338,6 @@ function drawDsChart(entries) {
       ctx.fill();
     }
 
-    // X axis label — only show every Nth label if there are many entries, to avoid crowding
     const labelEvery=n<=10?1:Math.ceil(n/8);
     if(i%labelEvery===0 || i===n-1){
       ctx.fillStyle='#4a5568';
@@ -1446,7 +1388,6 @@ function boot() {
 setInterval(updateClock, 1000);
 updateClock();
 
-// Redraw the Data Store chart on resize/orientation-change so it stays crisp
 let dsResizeTimer;
 window.addEventListener('resize', ()=>{
   clearTimeout(dsResizeTimer);
