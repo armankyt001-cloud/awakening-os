@@ -214,6 +214,46 @@ input[type="checkbox"]{width:18px;height:18px;cursor:pointer;accent-color:var(--
 .jarvis-toggle.on .jarvis-dot{background:var(--cyan);box-shadow:0 0 6px var(--cyan);animation:jarvisPulse 1.6s ease infinite;}
 @keyframes jarvisPulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
 
+/* DATA STORE NAV BUTTON */
+.datastore-toggle{position:absolute;top:14px;left:0;right:auto;}
+.datastore-toggle:active{border-color:var(--gold);color:var(--gold);}
+
+/* DATA STORE PAGE */
+#datastore-page{position:fixed;inset:0;background:var(--bg);z-index:9992;display:none;flex-direction:column;overflow:hidden;}
+#datastore-page.show{display:flex;}
+.ds-header{display:flex;align-items:center;justify-content:space-between;padding:14px;border-bottom:1px solid var(--border);flex-shrink:0;}
+.ds-title{font-family:var(--mono);font-size:13px;color:var(--gold);letter-spacing:3px;}
+.ds-back{background:var(--card);border:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:10px;padding:8px 12px;border-radius:2px;cursor:pointer;letter-spacing:1px;}
+.ds-back:active{border-color:var(--cyan);color:var(--cyan);}
+.ds-body{flex:1;overflow-y:auto;padding:14px;max-width:600px;margin:0 auto;width:100%;}
+
+.ds-summary-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:16px;}
+.ds-summary-box{background:var(--card);border:1px solid var(--border);border-radius:3px;padding:12px;text-align:center;}
+.ds-summary-val{font-family:var(--mono);font-size:20px;font-weight:700;color:var(--gold);}
+.ds-summary-lbl{font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:1px;margin-top:3px;text-transform:uppercase;}
+
+.ds-section-lbl{font-family:var(--mono);font-size:10px;color:var(--cyan);letter-spacing:2px;margin:18px 0 8px;padding-bottom:6px;border-bottom:1px dashed var(--border);}
+.ds-empty{text-align:center;padding:2.5rem 1rem;color:var(--muted);font-family:var(--mono);font-size:11px;letter-spacing:1px;line-height:1.9;}
+
+.ds-chart-wrap{background:var(--panel);border:1px solid var(--border);border-radius:3px;padding:10px;margin-bottom:6px;}
+.ds-chart-legend{display:flex;gap:14px;justify-content:center;margin-top:8px;flex-wrap:wrap;}
+.ds-legend-item{display:flex;align-items:center;gap:5px;font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:1px;}
+.ds-legend-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0;}
+
+.ds-range-tabs{display:flex;gap:6px;margin-bottom:10px;}
+.ds-range-tab{flex:1;background:var(--card);border:1px solid var(--border);color:var(--muted);font-family:var(--mono);font-size:10px;padding:8px 4px;border-radius:2px;cursor:pointer;text-align:center;letter-spacing:1px;transition:all 0.15s;}
+.ds-range-tab.active{border-color:var(--gold);color:var(--gold);background:var(--gold-dim);}
+
+.ds-log-row{display:flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--border);border-radius:3px;padding:10px;margin-bottom:6px;}
+.ds-log-row.cleared{border-color:var(--green);}
+.ds-log-date{font-family:var(--mono);font-size:10px;color:var(--text);min-width:56px;font-weight:700;}
+.ds-log-mid{flex:1;min-width:0;}
+.ds-log-goal{font-size:13px;color:var(--text);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ds-log-tasks{font-family:var(--mono);font-size:9px;color:var(--muted);margin-top:2px;}
+.ds-log-xp{font-family:var(--mono);font-size:12px;color:var(--gold);text-align:right;min-width:60px;font-weight:700;}
+.ds-log-xp .max{color:var(--muted);font-weight:400;}
+.ds-log-check{font-size:14px;flex-shrink:0;}
+
 /* JARVIS CAPTION BAR */
 #jarvis-bar{position:fixed;left:50%;bottom:0;transform:translateX(-50%) translateY(100%);width:100%;max-width:600px;z-index:9986;display:flex;align-items:center;gap:10px;background:linear-gradient(180deg,rgba(13,15,26,0.97),rgba(7,8,15,0.99));border-top:1px solid var(--cyan);padding:12px 16px calc(12px + env(safe-area-inset-bottom));box-shadow:0 -8px 30px rgba(0,229,255,0.08);transition:transform 0.35s cubic-bezier(.4,0,.2,1);}
 #jarvis-bar.show{transform:translateX(-50%) translateY(0);}
@@ -273,10 +313,24 @@ input[type="checkbox"]{width:18px;height:18px;cursor:pointer;accent-color:var(--
   </div>
 </div>
 
+<!-- DATA STORE PAGE -->
+<div id="datastore-page">
+  <div class="ds-header">
+    <span class="ds-title">[ DATA STORE ]</span>
+    <button class="ds-back" onclick="closeDataStore()">[ ← BACK ]</button>
+  </div>
+  <div class="ds-body" id="ds-body">
+    <!-- populated by renderDataStore() -->
+  </div>
+</div>
+
 <div class="sl" id="main">
   <div class="sys-header">
     <div class="jarvis-toggle on" id="jarvis-toggle" onclick="toggleJarvis()">
       <span class="jarvis-dot"></span><span id="jarvis-toggle-label">JARVIS</span>
+    </div>
+    <div class="jarvis-toggle datastore-toggle" id="datastore-toggle" onclick="openDataStore()">
+      <span>📊 DATA STORE</span>
     </div>
     <div class="sys-title">[ SYSTEM ACTIVE ]</div>
     <div class="sys-name">Awakening OS</div>
@@ -300,6 +354,7 @@ input[type="checkbox"]{width:18px;height:18px;cursor:pointer;accent-color:var(--
     <div class="xp-track"><div class="xp-fill" id="xp-bar" style="width:0%"></div></div>
     <div class="xp-row"><span class="xp-lbl">TODAY'S XP</span><span class="xp-val" id="day-xp-label">0 / 100</span></div>
     <div class="xp-track sm"><div class="xp-fill sm" id="day-xp-bar" style="width:0%"></div></div>
+    <div class="xp-row" id="carry-note-row" style="display:none;"><span class="xp-lbl" style="color:var(--orange);">↻ CARRIED IN</span><span class="xp-val" id="carry-note-val" style="color:var(--orange);"></span></div>
   </div>
 
   <div class="rank-bar-section">
@@ -542,7 +597,11 @@ function getRankInfo(xp) {
 function getLevelFromXP(xp) { return Math.floor(xp/100)+1; }
 
 // ─── DATA ──────────────────────────────────────────────────────────────────
-function blank(date) { return {tasks:[],shipped:'',friction:'',dayGoal:'',date:date||null,locked:false,carriedFrom:null}; }
+// poolXP = total XP available to earn on this day. Starts at BASE_DAY_XP (100).
+// If a day locks with unearned XP left, that leftover rolls into the next day's
+// poolXP on top of the base 100 — so a 20/100 day makes tomorrow a 180 XP day.
+const BASE_DAY_XP = 100;
+function blank(date) { return {tasks:[],shipped:'',friction:'',dayGoal:'',date:date||null,locked:false,carriedFrom:null,poolXP:BASE_DAY_XP}; }
 
 function dateStrOffset(base, offset) {
   const d = new Date(base+'T00:00:00');
@@ -550,9 +609,40 @@ function dateStrOffset(base, offset) {
   return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
 }
 
+// ─── DATA STORE (ARCHIVE) ───────────────────────────────────────────────────
+// Every time a day locks, a snapshot is pushed here. This is what the Data
+// Store page reads from — it never re-derives from data.days, so it stays
+// fast and stable even after months of history.
+function archiveDay(dayNum, day) {
+  if(!data.archive) data.archive=[];
+  // Guard against double-archiving the same date (e.g. app reloaded twice same day)
+  if(data.archive.find(a=>a.date===day.date)) return;
+  const pool=day.poolXP===undefined?BASE_DAY_XP:day.poolXP;
+  const earned=dayEarned(dayNum);
+  const total=day.tasks.length;
+  const done=day.tasks.filter(t=>t.done).length;
+  data.archive.push({
+    date: day.date,
+    dayNum: dayNum,
+    dayGoal: day.dayGoal||'',
+    poolXP: pool,
+    earnedXP: earned,
+    leftoverXP: Math.max(pool-earned,0),
+    tasksTotal: total,
+    tasksDone: done,
+    tasksCarriedIn: day.tasks.filter(t=>t.carried).length,
+    cleared: total>0 && done===total,
+    shipped: day.shipped||'',
+    friction: day.friction||''
+  });
+  // Keep archive sorted by date ascending
+  data.archive.sort((a,b)=> a.date<b.date?-1:(a.date>b.date?1:0));
+}
+
 function load() {
   try { const s=localStorage.getItem(STORAGE_KEY); if(s) data=JSON.parse(s); } catch(e) {}
   if(!data.days) data.days={};
+  if(!data.archive) data.archive=[];
   if(!data.startDate) data.startDate=todayStr();
 
   const today=todayStr();
@@ -676,8 +766,11 @@ function saveNotes() {
 
 // ─── MISSED DAY PROCESSING ─────────────────────────────────────────────────
 // When a day ends: incomplete tasks carry to next day with 'carried:true' flag.
-// They join the next day's pool and XP is re-split equally across ALL tasks.
-// So if Day 2 has 5 tasks and 2 carry in → Day 3 has 7 tasks, 100÷7 ≈ 14 XP each.
+// AND any unearned XP from that day's poolXP carries forward too, stacked on
+// top of the next day's base 100. So a 20/100 day → next day's poolXP = 180.
+// Per-task XP is then that day's poolXP split across whatever tasks exist,
+// so adding more tasks tomorrow doesn't shrink the leftover — it just spreads
+// the full 180 across more quests.
 function checkAndProcessMissedDays() {
   const today = todayStr();
   const numDays = Object.keys(data.days).length;
@@ -685,9 +778,12 @@ function checkAndProcessMissedDays() {
   for(let i=1; i<=numDays; i++) {
     const day = data.days[i];
     if(!day) continue;
+    if(day.poolXP===undefined) day.poolXP=BASE_DAY_XP; // backfill days saved before this feature
     if(day.date && day.date < today && !day.locked) {
       // Lock this past day
       day.locked = true;
+      // Archive a snapshot of this day into the Data Store before anything else changes
+      archiveDay(i, day);
       // Carry incomplete tasks forward (pending apply to next day)
       const incomplete = day.tasks.filter(t => !t.done);
       if(incomplete.length > 0) {
@@ -699,6 +795,11 @@ function checkAndProcessMissedDays() {
           carriedFromDay: i
         }));
       }
+      // Roll unearned XP forward: whatever wasn't earned out of this day's pool
+      // gets added on top of the next day's base pool.
+      const earned = dayEarned(i);
+      const leftover = Math.max(day.poolXP - earned, 0);
+      day._pendingXPCarry = leftover;
     }
   }
 
@@ -711,15 +812,27 @@ function checkAndProcessMissedDays() {
   // Apply pending carries to today's day
   if(todayDayNum) {
     const prevNum = todayDayNum - 1;
-    if(prevNum >= 1 && data.days[prevNum] && data.days[prevNum]._pendingCarry) {
-      const carry = data.days[prevNum]._pendingCarry;
-      carry.forEach(ct => {
-        // Avoid duplicates
-        if(!data.days[todayDayNum].tasks.find(t => t.name === ct.name && t.carried)) {
-          data.days[todayDayNum].tasks.unshift(ct);
+    if(prevNum >= 1 && data.days[prevNum]) {
+      const prevDay = data.days[prevNum];
+      if(prevDay._pendingCarry) {
+        const carry = prevDay._pendingCarry;
+        carry.forEach(ct => {
+          // Avoid duplicates
+          if(!data.days[todayDayNum].tasks.find(t => t.name === ct.name && t.carried)) {
+            data.days[todayDayNum].tasks.unshift(ct);
+          }
+        });
+        delete prevDay._pendingCarry;
+      }
+      if(prevDay._pendingXPCarry) {
+        // Stack leftover XP on top of today's base pool (only once — guard against
+        // re-running this on every load by checking a flag on today's day).
+        if(!data.days[todayDayNum]._xpCarriedIn){
+          data.days[todayDayNum].poolXP = BASE_DAY_XP + prevDay._pendingXPCarry;
+          data.days[todayDayNum]._xpCarriedIn = true;
         }
-      });
-      delete data.days[prevNum]._pendingCarry;
+        delete prevDay._pendingXPCarry;
+      }
     }
   }
 
@@ -728,15 +841,22 @@ function checkAndProcessMissedDays() {
 }
 
 // ─── XP CALCULATION ────────────────────────────────────────────────────────
-// Each day has 100 XP total, split equally across ALL tasks (original + carried).
+// Each day has a poolXP total (base 100, or 100 + yesterday's leftover if XP
+// rolled forward), split equally across ALL tasks (original + carried).
 // Carried tasks keep their original per-task value (no penalty — full XP).
-// If you only complete 70% of tasks, the remaining 30% carry forward with same XP value.
+// If you only complete 70% of tasks, the remaining 30% XP rolls into tomorrow's pool.
+
+function dayPool(n) {
+  const d = data.days[n]; if(!d) return BASE_DAY_XP;
+  return d.poolXP===undefined ? BASE_DAY_XP : d.poolXP;
+}
 
 function xpPerTask(n) {
-  // Equal split of 100 XP across all tasks in this day
+  // Equal split of this day's XP pool across all tasks in this day
   const d = data.days[n]; if(!d) return 0;
   const total = d.tasks.length;
-  return total ? Math.floor(100 / total) : 0;
+  const pool = dayPool(n);
+  return total ? Math.floor(pool / total) : 0;
 }
 
 function dayEarned(n) {
@@ -747,9 +867,10 @@ function dayEarned(n) {
 
 function dayTotal(n) {
   // Max possible XP for a day (accounts for rounding)
-  const d = data.days[n]; if(!d) return 100;
+  const d = data.days[n]; if(!d) return BASE_DAY_XP;
   const total = d.tasks.length;
-  return total ? total * Math.floor(100 / total) : 100;
+  const pool = dayPool(n);
+  return total ? total * Math.floor(pool / total) : pool;
 }
 
 function totalXP() {
@@ -790,6 +911,20 @@ function updateStats() {
   document.getElementById('day-xp-label').innerText=dx+' / '+dMax;
   document.getElementById('day-xp-bar').style.width=Math.min(Math.round((dx/Math.max(dMax,1))*100),100)+'%';
   document.getElementById('day-badge').innerText=dx+' / '+dMax+' XP';
+
+  // Show a note when today's pool is boosted above the base 100 (XP carried in from yesterday)
+  const curDay=data.days[data.currentDay];
+  const carryRow=document.getElementById('carry-note-row');
+  if(curDay && carryRow){
+    const pool=dayPool(data.currentDay);
+    const extra=pool-BASE_DAY_XP;
+    if(extra>0){
+      carryRow.style.display='flex';
+      document.getElementById('carry-note-val').innerText='+'+extra+' XP (100 base + '+extra+' rolled in)';
+    } else {
+      carryRow.style.display='none';
+    }
+  }
 
   // Rank progress bar
   const rankRange = rank.max === Infinity ? 500 : rank.max - rank.min;
@@ -1072,6 +1207,180 @@ function spawnParticles(el) {
   }
 }
 
+// ─── DATA STORE PAGE ────────────────────────────────────────────────────────
+let dsRange = 7; // 7, 30, or 'all'
+
+function openDataStore() {
+  playSelect();
+  document.getElementById('datastore-page').classList.add('show');
+  renderDataStore();
+}
+function closeDataStore() {
+  playSelect();
+  document.getElementById('datastore-page').classList.remove('show');
+}
+
+function dsGetEntries() {
+  const all = (data.archive||[]).slice(); // already sorted ascending by date
+  if(dsRange==='all') return all;
+  return all.slice(Math.max(all.length-dsRange,0));
+}
+
+function renderDataStore() {
+  const body=document.getElementById('ds-body');
+  const archive=data.archive||[];
+
+  if(!archive.length) {
+    body.innerHTML='<div class="ds-empty">— NO ARCHIVED DAYS YET —<br>Complete your first day and it will<br>appear here automatically.<br><br>Come back after a few days to see<br>your stats and progress chart.</div>';
+    return;
+  }
+
+  const entries=dsGetEntries();
+  const totalEarned=archive.reduce((s,a)=>s+a.earnedXP,0);
+  const totalPossible=archive.reduce((s,a)=>s+a.poolXP,0);
+  const clearedCount=archive.filter(a=>a.cleared).length;
+  const avgPct=archive.length?Math.round((archive.reduce((s,a)=>s+(a.poolXP?a.earnedXP/a.poolXP:0),0)/archive.length)*100):0;
+
+  let html='';
+
+  // Summary cards
+  html+='<div class="ds-summary-grid">'+
+    '<div class="ds-summary-box"><div class="ds-summary-val">'+archive.length+'</div><div class="ds-summary-lbl">Days Logged</div></div>'+
+    '<div class="ds-summary-box"><div class="ds-summary-val">'+clearedCount+'</div><div class="ds-summary-lbl">Full Clears</div></div>'+
+    '<div class="ds-summary-box"><div class="ds-summary-val">'+totalEarned+'</div><div class="ds-summary-lbl">Total XP Earned</div></div>'+
+    '<div class="ds-summary-box"><div class="ds-summary-val">'+avgPct+'%</div><div class="ds-summary-lbl">Avg Daily Clear</div></div>'+
+  '</div>';
+
+  // Range tabs + chart
+  html+='<div class="ds-section-lbl">[ XP TREND ]</div>';
+  html+='<div class="ds-range-tabs">'+
+    '<div class="ds-range-tab'+(dsRange===7?' active':'')+'" onclick="setDsRange(7)">7 DAYS</div>'+
+    '<div class="ds-range-tab'+(dsRange===30?' active':'')+'" onclick="setDsRange(30)">30 DAYS</div>'+
+    '<div class="ds-range-tab'+(dsRange==='all'?' active':'')+'" onclick="setDsRange(\'all\')">ALL TIME</div>'+
+  '</div>';
+  html+='<div class="ds-chart-wrap"><canvas id="ds-canvas" style="width:100%;display:block;"></canvas>'+
+    '<div class="ds-chart-legend">'+
+      '<div class="ds-legend-item"><span class="ds-legend-dot" style="background:var(--gold);"></span>XP Earned</div>'+
+      '<div class="ds-legend-item"><span class="ds-legend-dot" style="background:var(--border);border:1px solid var(--muted);"></span>XP Possible</div>'+
+      '<div class="ds-legend-item"><span class="ds-legend-dot" style="background:var(--green);border-radius:50%;"></span>Full Clear</div>'+
+    '</div></div>';
+
+  // Log
+  html+='<div class="ds-section-lbl">[ HUNTER HISTORY ]</div>';
+  if(!entries.length){
+    html+='<div class="ds-empty">No days in this range yet.</div>';
+  } else {
+    entries.slice().reverse().forEach(a=>{
+      const pct=a.poolXP?Math.round((a.earnedXP/a.poolXP)*100):0;
+      html+='<div class="ds-log-row'+(a.cleared?' cleared':'')+'">'+
+        '<div class="ds-log-date">'+formatDate(a.date)+'</div>'+
+        '<div class="ds-log-mid">'+
+          '<div class="ds-log-goal">'+(a.dayGoal?escapeHtml(a.dayGoal):'<span style=\"color:var(--muted);\">No goal set</span>')+'</div>'+
+          '<div class="ds-log-tasks">'+a.tasksDone+'/'+a.tasksTotal+' tasks'+(a.tasksCarriedIn?' ∙ '+a.tasksCarriedIn+' carried in':'')+(a.leftoverXP>0?' ∙ '+a.leftoverXP+' XP rolled to next day':'')+'</div>'+
+        '</div>'+
+        '<div class="ds-log-xp">'+a.earnedXP+'<span class="max"> / '+a.poolXP+'</span></div>'+
+        '<div class="ds-log-check">'+(a.cleared?'✅':(pct>0?'🟡':'⬜'))+'</div>'+
+      '</div>';
+    });
+  }
+
+  body.innerHTML=html;
+  drawDsChart(entries);
+}
+
+function setDsRange(r) {
+  dsRange=r;
+  playSelect();
+  renderDataStore();
+}
+
+function escapeHtml(s) {
+  const d=document.createElement('div');
+  d.textContent=s;
+  return d.innerHTML;
+}
+
+// Lightweight canvas bar chart — no external libraries needed.
+// Draws XP earned (gold bars) against XP possible (outline) per day, with a
+// green dot above any day that was fully cleared. Scales to whatever range
+// of entries is passed in (7 / 30 / all).
+function drawDsChart(entries) {
+  const canvas=document.getElementById('ds-canvas');
+  if(!canvas||!entries.length) return;
+  const wrap=canvas.parentElement;
+  const cssWidth=wrap.clientWidth-20;
+  const cssHeight=200;
+  const dpr=window.devicePixelRatio||1;
+  canvas.width=cssWidth*dpr;
+  canvas.height=cssHeight*dpr;
+  canvas.style.width=cssWidth+'px';
+  canvas.style.height=cssHeight+'px';
+  const ctx=canvas.getContext('2d');
+  ctx.scale(dpr,dpr);
+  ctx.clearRect(0,0,cssWidth,cssHeight);
+
+  const padL=34, padR=8, padT=14, padB=26;
+  const chartW=cssWidth-padL-padR;
+  const chartH=cssHeight-padT-padB;
+  const maxPool=Math.max(...entries.map(e=>e.poolXP),100);
+  const niceMax=Math.ceil(maxPool/50)*50; // round up to nearest 50 for cleaner gridlines
+
+  // Gridlines + Y axis labels
+  ctx.strokeStyle='rgba(255,255,255,0.06)';
+  ctx.fillStyle='#4a5568';
+  ctx.font='9px monospace';
+  ctx.textAlign='right';
+  const gridSteps=4;
+  for(let i=0;i<=gridSteps;i++){
+    const y=padT+chartH-(chartH*(i/gridSteps));
+    const val=Math.round(niceMax*(i/gridSteps));
+    ctx.beginPath();
+    ctx.moveTo(padL,y);
+    ctx.lineTo(padL+chartW,y);
+    ctx.stroke();
+    ctx.fillText(val,padL-6,y+3);
+  }
+
+  const n=entries.length;
+  const slotW=chartW/n;
+  const barW=Math.max(Math.min(slotW*0.5,28),3);
+
+  entries.forEach((e,i)=>{
+    const cx=padL+slotW*i+slotW/2;
+    const poolH=(e.poolXP/niceMax)*chartH;
+    const earnH=(e.earnedXP/niceMax)*chartH;
+    const poolY=padT+chartH-poolH;
+    const earnY=padT+chartH-earnH;
+
+    // Possible-XP outline bar
+    ctx.strokeStyle='rgba(74,85,104,0.6)';
+    ctx.lineWidth=1;
+    ctx.strokeRect(cx-barW/2,poolY,barW,poolH);
+
+    // Earned-XP filled bar
+    ctx.fillStyle=e.cleared?'#10b981':'#f59e0b';
+    ctx.fillRect(cx-barW/2,earnY,barW,Math.max(earnH,1));
+
+    // Full-clear dot marker above the bar
+    if(e.cleared){
+      ctx.beginPath();
+      ctx.arc(cx,poolY-8,3,0,Math.PI*2);
+      ctx.fillStyle='#10b981';
+      ctx.fill();
+    }
+
+    // X axis label — only show every Nth label if there are many entries, to avoid crowding
+    const labelEvery=n<=10?1:Math.ceil(n/8);
+    if(i%labelEvery===0 || i===n-1){
+      ctx.fillStyle='#4a5568';
+      ctx.font='8px monospace';
+      ctx.textAlign='center';
+      const [,,d]=e.date.split('-');
+      ctx.fillText(parseInt(d),cx,cssHeight-8);
+    }
+  });
+}
+
 // ─── BOOT SEQUENCE ─────────────────────────────────────────────────────────
 function boot() {
   const bar=document.getElementById('boot-bar');
@@ -1110,6 +1419,17 @@ function boot() {
 // ─── CLOCK TICK ────────────────────────────────────────────────────────────
 setInterval(updateClock, 1000);
 updateClock();
+
+// Redraw the Data Store chart on resize/orientation-change so it stays crisp
+let dsResizeTimer;
+window.addEventListener('resize', ()=>{
+  clearTimeout(dsResizeTimer);
+  dsResizeTimer=setTimeout(()=>{
+    if(document.getElementById('datastore-page').classList.contains('show')){
+      drawDsChart(dsGetEntries());
+    }
+  },150);
+});
 
 // ─── START ─────────────────────────────────────────────────────────────────
 window.addEventListener('load', boot);
