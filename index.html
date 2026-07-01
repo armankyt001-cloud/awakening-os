@@ -40,14 +40,17 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;background:rad
 .sl.visible{opacity:1;}
 
 /* HEADER */
-.sys-header{text-align:center;padding:16px 0 12px;border-bottom:1px solid var(--border);margin-bottom:16px;position:relative;}
+.sys-header{text-align:center;padding:16px 0 12px;border-bottom:1px solid var(--border);margin-bottom:16px;position:relative;overflow:visible;}
 .sys-header-row{position:relative;}
 .sys-header::after{content:'';position:absolute;bottom:-1px;left:50%;transform:translateX(-50%);width:140px;height:1px;background:var(--cyan);box-shadow:0 0 10px var(--cyan);}
-.sys-title{font-family:var(--mono);font-size:10px;color:var(--cyan);letter-spacing:4px;margin-bottom:5px;animation:flicker 6s infinite;pointer-events:none;}
+.sys-title{font-family:var(--mono);font-size:10px;color:var(--cyan);letter-spacing:4px;margin-bottom:5px;animation:flicker 6s infinite;pointer-events:none;white-space:nowrap;overflow:visible;}
 .sys-name{font-size:24px;font-weight:700;color:#fff;letter-spacing:3px;text-transform:uppercase;}
 .sys-sub{font-size:10px;color:var(--muted);letter-spacing:2px;margin-top:3px;font-family:var(--mono);}
 .live-date{font-family:var(--mono);font-size:10px;color:var(--gold);letter-spacing:2px;margin-top:6px;}
 @keyframes flicker{0%,98%,100%{opacity:1;}99%{opacity:0.4;}}
+@media (max-width:400px){
+  .sys-title{font-size:9px;letter-spacing:3px;}
+}
 
 /* GOAL PANEL */
 .goal-panel{border:1px solid var(--cyan);background:var(--cyan-dim);border-radius:3px;padding:14px;margin-bottom:14px;position:relative;transition:box-shadow 0.3s;}
@@ -1218,15 +1221,30 @@ function spawnParticles(el) {
 // ─── DATA STORE PAGE ────────────────────────────────────────────────────────
 let dsRange = 7; // 7, 30, or 'all'
 
+// openDataStore/closeDataStore now push/pop a history entry so the phone's
+// back button (or swipe-back gesture) closes the Data Store overlay instead
+// of leaving the app entirely.
 function openDataStore() {
   playSelect();
   document.getElementById('datastore-page').classList.add('show');
   renderDataStore();
+  try { history.pushState({ ds: true }, ''); } catch(e) {}
 }
-function closeDataStore() {
+function closeDataStore(skipHistory) {
   playSelect();
   document.getElementById('datastore-page').classList.remove('show');
+  if (!skipHistory) {
+    try {
+      if (history.state && history.state.ds) history.back();
+    } catch(e) {}
+  }
 }
+window.addEventListener('popstate', () => {
+  const ds = document.getElementById('datastore-page');
+  if (ds && ds.classList.contains('show')) {
+    closeDataStore(true);
+  }
+});
 
 function dsGetEntries() {
   const all = (data.archive||[]).slice(); // already sorted ascending by date
