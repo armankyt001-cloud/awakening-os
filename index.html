@@ -198,7 +198,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;background:rad
 
 <div id="boot-screen">
   <div class="boot-logo">AWAKENING OS</div>
-  <div class="boot-sub">ARMAN'S PROTOCOL ∙ v5.1</div>
+  <div class="boot-sub">ARMAN'S PROTOCOL ∙ v5.2</div>
   <div class="boot-bar-wrap"><div class="boot-bar" id="boot-bar"></div></div>
   <div class="boot-status" id="boot-status">INITIALIZING...</div>
 </div>
@@ -302,7 +302,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;background:rad
     <div id="quest-body"></div>
   </div>
 
-  <div class="sys-footer">SYSTEM ∙ v5.1 ∙ ARMAN'S PROTOCOL ∙ FULLY LOCAL</div>
+  <div class="sys-footer">SYSTEM ∙ v5.2 ∙ ARMAN'S PROTOCOL ∙ FULLY LOCAL</div>
 </div>
 
 <script>
@@ -574,8 +574,48 @@ function closeRankOverlay(){document.getElementById('rank-overlay').classList.re
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2200);}
 
 let dsRange=7;
-function openDataStore(){document.getElementById('datastore-page').classList.add('show');renderDataStore();}
-function closeDataStore(){document.getElementById('datastore-page').classList.remove('show');}
+let dsOpen = false;
+
+// --- NEW DATA STORE BACK HANDLING ---
+function openDataStore(){
+  document.getElementById('datastore-page').classList.add('show');
+  if (!dsOpen) {
+    history.pushState({page: 'datastore'}, '');
+    dsOpen = true;
+  }
+  renderDataStore();
+}
+
+function closeDataStore(){
+  document.getElementById('datastore-page').classList.remove('show');
+  if (dsOpen) {
+    dsOpen = false;
+    history.back(); // will trigger popstate, but we already closed it
+  }
+}
+
+window.addEventListener('popstate', function(e) {
+  const dsPage = document.getElementById('datastore-page');
+  // If the overlay is visible and we navigated back, close it without another history.back()
+  if (dsOpen && dsPage && dsPage.classList.contains('show')) {
+    dsPage.classList.remove('show');
+    dsOpen = false;
+    // Prevent the page from actually navigating away by pushing a new state
+    // (this keeps the user in the app)
+    history.pushState({page: 'main'}, '', location.href);
+  }
+  // If the overlay is not visible and we are on the main page, trap the back button
+  else if (!dsOpen && (!dsPage || !dsPage.classList.contains('show'))) {
+    // Push a state so that the user stays on the page
+    history.pushState({page: 'main'}, '', location.href);
+  }
+});
+
+// Push initial state so that the first back button doesn't exit
+history.pushState({page: 'main'}, '', location.href);
+
+// -------------------------------
+
 function escapeHtml(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML;}
 
 function renderDataStore(){
