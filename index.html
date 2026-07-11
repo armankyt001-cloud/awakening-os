@@ -25,7 +25,6 @@
 }
 html,body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:100vh;overflow-x:hidden;}
 
-/* BOOT SCREEN */
 #boot-screen{position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;padding-top:var(--safe-top);padding-bottom:var(--safe-bottom);}
 .boot-logo{font-family:var(--mono);font-size:clamp(22px,5vw,36px);color:var(--cyan);letter-spacing:6px;text-transform:uppercase;animation:bootPulse 0.6s ease infinite alternate;}
 .boot-sub{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:3px;}
@@ -34,322 +33,240 @@ html,body{background:var(--bg);color:var(--text);font-family:var(--font);min-hei
 .boot-status{font-family:var(--mono);font-size:9px;color:var(--cyan);letter-spacing:2px;min-height:14px;}
 @keyframes bootPulse{from{text-shadow:0 0 8px var(--cyan);}to{text-shadow:0 0 30px var(--cyan),0 0 60px var(--cyan-glow);}}
 
-/* SCANLINES */
 body::before{content:'';position:fixed;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.07) 2px,rgba(0,0,0,0.07) 4px);z-index:9998;}
 body::after{content:'';position:fixed;inset:0;pointer-events:none;background:radial-gradient(ellipse at 50% 0%,rgba(0,229,255,0.04) 0%,transparent 70%);z-index:9997;}
 
 .sl{padding:14px;padding-top:calc(14px + var(--safe-top));padding-bottom:calc(14px + var(--safe-bottom));max-width:600px;margin:0 auto;opacity:0;transition:opacity 0.5s;}
 .sl.visible{opacity:1;}
 
-/* HEADER */
 .sys-header{text-align:center;padding:16px 0 12px;border-bottom:1px solid var(--border);margin-bottom:16px;position:relative;}
-.sys-header-row{position:relative;}
 .sys-header::after{content:'';position:absolute;bottom:-1px;left:50%;transform:translateX(-50%);width:140px;height:1px;background:var(--cyan);box-shadow:0 0 10px var(--cyan);}
-.sys-title{font-family:var(--mono);font-size:11px;color:var(--cyan);letter-spacing:4px;margin-bottom:5px;animation:flicker 6s infinite;pointer-events:none;text-shadow:0 0 6px rgba(0,229,255,0.5);}
+.sys-title{font-family:var(--mono);font-size:11px;color:var(--cyan);letter-spacing:4px;margin-bottom:5px;animation:flicker 6s infinite;text-shadow:0 0 6px rgba(0,229,255,0.5);}
 .sys-name{font-size:24px;font-weight:700;color:#fff;letter-spacing:3px;text-transform:uppercase;}
 .sys-sub{font-size:10px;color:var(--muted);letter-spacing:2px;margin-top:3px;font-family:var(--mono);}
 .live-date{font-family:var(--mono);font-size:10px;color:var(--gold);letter-spacing:2px;margin-top:6px;}
 @keyframes flicker{0%,98%,100%{opacity:1;}99%{opacity:0.4;}}
 
-/* GOAL PANEL */
-.goal-panel{border:1px solid var(--cyan);background:var(--cyan-dim);border-radius:3px;padding:14px;margin-bottom:14px;position:relative;transition:box-shadow 0.3s;}
-.goal-panel::before{content:'[ FINAL OBJECTIVE ]';position:absolute;top:-9px;left:14px;background:var(--bg);padding:0 8px;font-family:var(--mono);font-size:10px;color:var(--cyan);letter-spacing:2px;}
-.goal-panel:focus-within{box-shadow:0 0 20px var(--cyan-glow);}
-.goal-input{width:100%;background:transparent;border:none;border-bottom:1px dashed rgba(0,229,255,0.3);color:#fff;font-family:var(--font);font-size:15px;font-weight:600;padding:6px 0;letter-spacing:0.5px;outline:none;}
-.goal-input::placeholder{color:var(--muted);font-weight:400;}
+.goal-panel{border:1px solid var(--cyan);background:var(--cyan-dim);border-radius:3px;padding:14px;margin-bottom:14px;position:relative;}
+.goal-panel::before{content:attr(data-label);position:absolute;top:-9px;left:14px;background:var(--bg);padding:0 8px;font-family:var(--mono);font-size:10px;color:var(--cyan);letter-spacing:2px;}
+.goal-display{color:#fff;font-family:var(--font);font-size:15px;font-weight:600;padding:6px 0;display:flex;align-items:center;gap:8px;}
+.goal-status{font-family:var(--mono);font-size:10px;padding:2px 8px;border-radius:2px;letter-spacing:1px;margin-left:auto;}
+.goal-status.pending{color:var(--gold);background:var(--gold-dim);border:1px solid rgba(245,158,11,0.3);}
+.goal-status.completed{color:var(--green);background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.3);}
 
-/* STATS */
+.cycle-panel{border:1px solid var(--gold);background:var(--gold-dim);border-radius:3px;padding:14px;margin-bottom:14px;position:relative;}
+.cycle-panel::before{content:'[ 15-DAY CYCLE ]';position:absolute;top:-9px;left:14px;background:var(--bg);padding:0 8px;font-family:var(--mono);font-size:10px;color:var(--gold);letter-spacing:2px;}
+.cycle-input{width:100%;background:transparent;border:none;border-bottom:1px dashed rgba(245,158,11,0.3);color:#fff;font-family:var(--font);font-size:15px;font-weight:600;padding:6px 0;outline:none;}
+.cycle-info-row{display:flex;justify-content:space-between;align-items:center;margin-top:10px;flex-wrap:wrap;}
+.cycle-dates{font-family:var(--mono);font-size:9px;color:var(--muted);}
+.cycle-countdown{font-family:var(--mono);font-size:22px;font-weight:700;color:var(--gold);}
+.cycle-countdown.expired{color:var(--red);animation:urgentPulse 1s infinite;}
+@keyframes urgentPulse{0%,100%{opacity:1;}50%{opacity:0.5;}}
+.cycle-progress-wrap{height:4px;background:var(--panel);border:1px solid var(--border);margin-top:8px;}
+.cycle-progress-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--orange));}
+.cycle-reset-btn{background:var(--gold-dim);border:1px solid var(--gold);color:var(--gold);font-family:var(--mono);font-size:9px;padding:6px 12px;cursor:pointer;letter-spacing:1px;border-radius:2px;margin-top:8px;}
+
 .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:14px;}
-.stat-box{background:var(--card);border:1px solid var(--border);border-radius:3px;padding:8px 6px;text-align:center;position:relative;overflow:hidden;transition:transform 0.2s,box-shadow 0.2s;}
+.stat-box{background:var(--card);border:1px solid var(--border);border-radius:3px;padding:8px 6px;text-align:center;position:relative;}
 .stat-box::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
 .stat-box.c::after{background:var(--cyan);}
 .stat-box.p::after{background:var(--purple);}
 .stat-box.g::after{background:var(--gold);}
 .stat-box.gr::after{background:var(--green);}
-.stat-box.pop{animation:statPop 0.4s cubic-bezier(.36,.07,.19,.97);}
-@keyframes statPop{0%{transform:scale(1);}40%{transform:scale(1.15);}100%{transform:scale(1);}}
-.stat-val{font-size:18px;font-weight:700;font-family:var(--mono);line-height:1;}
+.stat-val{font-size:18px;font-weight:700;font-family:var(--mono);}
 .stat-val.cyan{color:var(--cyan);}
 .stat-val.purple{color:var(--purple);font-size:13px;}
 .stat-val.gold{color:var(--gold);}
 .stat-val.green{color:var(--green);}
-.stat-label{font-size:9px;color:var(--muted);letter-spacing:1px;margin-top:3px;font-family:var(--mono);text-transform:uppercase;}
+.stat-label{font-size:9px;color:var(--muted);font-family:var(--mono);text-transform:uppercase;}
 
-/* XP BAR */
 .xp-section{margin-bottom:14px;}
 .xp-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;}
 .xp-lbl{font-family:var(--mono);font-size:9px;color:var(--cyan);letter-spacing:2px;}
 .xp-val{font-family:var(--mono);font-size:10px;color:#fff;}
-.xp-track{height:6px;background:var(--panel);border:1px solid var(--border);overflow:hidden;margin-bottom:8px;}
-.xp-fill{height:100%;background:linear-gradient(90deg,var(--purple),var(--cyan));transition:width 0.6s cubic-bezier(.4,0,.2,1);}
+.xp-track{height:6px;background:var(--panel);border:1px solid var(--border);margin-bottom:8px;}
+.xp-fill{height:100%;background:linear-gradient(90deg,var(--purple),var(--cyan));}
 .xp-track.sm{height:4px;}
 .xp-fill.sm{background:var(--cyan);}
 
-/* RANK BAR */
 .rank-bar-section{margin-bottom:14px;}
 .rank-progress{display:flex;gap:3px;margin-top:6px;}
-.rank-seg{flex:1;height:8px;border-radius:2px;background:var(--panel);border:1px solid var(--border);transition:background 0.4s,box-shadow 0.4s;position:relative;}
-.rank-seg.filled-e{background:var(--rank-e);box-shadow:0 0 6px var(--rank-e);}
-.rank-seg.filled-d{background:var(--rank-d);box-shadow:0 0 6px var(--rank-d);}
-.rank-seg.filled-c{background:var(--rank-c);box-shadow:0 0 6px var(--rank-c);}
-.rank-seg.filled-b{background:var(--rank-b);box-shadow:0 0 6px var(--rank-b);}
-.rank-seg.filled-a{background:var(--rank-a);box-shadow:0 0 6px var(--rank-a);}
-.rank-seg.filled-s{background:var(--rank-s);box-shadow:0 0 6px var(--rank-s);}
+.rank-seg{flex:1;height:8px;background:var(--panel);border:1px solid var(--border);border-radius:2px;}
+.rank-seg.filled-e{background:var(--rank-e);}
+.rank-seg.filled-d{background:var(--rank-d);}
+.rank-seg.filled-c{background:var(--rank-c);}
+.rank-seg.filled-b{background:var(--rank-b);}
+.rank-seg.filled-a{background:var(--rank-a);}
+.rank-seg.filled-s{background:var(--rank-s);}
 .rank-labels{display:flex;justify-content:space-between;margin-top:4px;}
-.rank-lbl{font-family:var(--mono);font-size:9px;color:var(--muted);}
 
-/* DAY RIBBON — vertical scroll */
 .ribbon-wrap{margin-bottom:14px;}
 .ribbon-label{font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:2px;margin-bottom:7px;}
-.ribbon{display:flex;flex-direction:column;gap:5px;max-height:320px;overflow-y:auto;padding-right:2px;}
-.ribbon::-webkit-scrollbar{width:3px;}
-.ribbon::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+.ribbon{display:flex;flex-direction:column;gap:5px;max-height:320px;overflow-y:auto;}
 
-/* DAY ROW */
-.day-row{display:flex;align-items:stretch;border:1px solid var(--border);border-radius:3px;overflow:hidden;background:var(--panel);transition:border-color 0.2s,transform 0.15s,box-shadow 0.2s;cursor:pointer;}
-.day-row:active{transform:scale(0.98);}
-.day-row.active{border-color:var(--cyan);background:var(--cyan-dim);box-shadow:0 0 12px var(--cyan-glow);}
+.day-row{display:flex;align-items:stretch;border:1px solid var(--border);border-radius:3px;background:var(--panel);cursor:pointer;}
+.day-row.active{border-color:var(--cyan);background:var(--cyan-dim);}
 .day-row.complete{border-color:var(--green);}
 .day-row.missed{border-color:var(--red);opacity:0.65;}
 .day-row.carried{border-color:var(--orange);}
-.day-tag{font-family:var(--mono);font-size:11px;color:var(--muted);padding:10px 10px;border-right:1px solid var(--border);min-width:76px;display:flex;align-items:center;justify-content:space-between;font-weight:700;letter-spacing:1px;white-space:nowrap;flex-shrink:0;}
-.day-row.active .day-tag{color:var(--cyan);}
-.day-row.complete .day-tag{color:var(--green);}
-.day-row.missed .day-tag{color:var(--red);}
-.day-row.carried .day-tag{color:var(--orange);}
-.day-date{font-size:8px;color:var(--muted);letter-spacing:0;font-family:var(--mono);margin-left:4px;}
-.day-goal-input{flex:1;background:transparent;border:none;color:var(--text);font-family:var(--font);font-size:13px;font-weight:500;padding:10px;outline:none;min-width:0;}
-.day-goal-input::placeholder{color:var(--muted);font-weight:400;font-size:12px;}
-.day-status{font-family:var(--mono);font-size:10px;padding:10px 10px;display:flex;align-items:center;white-space:nowrap;color:var(--muted);border-left:1px solid var(--border);justify-content:flex-end;flex-shrink:0;}
+.day-tag{font-family:var(--mono);font-size:11px;color:var(--muted);padding:10px;border-right:1px solid var(--border);min-width:76px;font-weight:700;}
+.day-goal-input{flex:1;background:transparent;border:none;color:var(--text);font-family:var(--font);font-size:13px;padding:10px;outline:none;}
+.day-status{font-family:var(--mono);font-size:10px;padding:10px;color:var(--muted);border-left:1px solid var(--border);}
 .day-status.done{color:var(--green);}
 .day-status.active-s{color:var(--cyan);}
-.day-status.missed{color:var(--red);}
-.day-status.carried{color:var(--orange);}
 
-/* QUEST PANEL */
-.quest-panel{background:var(--panel);border:1px solid var(--border);border-radius:3px;padding:14px;position:relative;margin-top:14px;transition:box-shadow 0.3s;}
-.quest-panel::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--cyan),transparent);}
-.quest-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;padding-bottom:10px;border-bottom:1px dashed var(--border);flex-wrap:wrap;gap:6px;}
-.quest-title{font-family:var(--mono);font-size:11px;color:var(--cyan);letter-spacing:2px;}
-.day-badge{font-family:var(--mono);font-size:10px;color:var(--purple);background:var(--purple-dim);border:1px solid rgba(168,85,247,0.3);padding:2px 8px;border-radius:2px;}
-.lock-msg{text-align:center;padding:1.5rem 0;color:var(--red);font-family:var(--mono);font-size:11px;letter-spacing:1px;line-height:1.8;opacity:0.8;}
+.quest-panel{background:var(--panel);border:1px solid var(--border);border-radius:3px;padding:14px;margin-top:14px;}
+.quest-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;border-bottom:1px dashed var(--border);padding-bottom:10px;}
+.quest-title{font-family:var(--mono);font-size:11px;color:var(--cyan);}
+.day-badge{font-family:var(--mono);font-size:10px;color:var(--purple);background:var(--purple-dim);padding:2px 8px;border:1px solid rgba(168,85,247,0.3);}
 
 .add-row{display:flex;gap:7px;margin-bottom:12px;}
-.sl-input{flex:1;background:var(--card);border:1px solid var(--border);border-radius:2px;color:#fff;font-family:var(--font);font-size:14px;font-weight:500;padding:10px 12px;outline:none;min-width:0;transition:border-color 0.2s,box-shadow 0.2s;}
-.sl-input:focus{border-color:var(--cyan);box-shadow:0 0 10px var(--cyan-glow);}
-.sl-input::placeholder{color:var(--muted);font-weight:400;}
-.sl-btn{background:var(--cyan-dim);border:1px solid var(--cyan);color:var(--cyan);font-family:var(--mono);font-size:11px;font-weight:700;padding:10px 14px;cursor:pointer;letter-spacing:1px;border-radius:2px;white-space:nowrap;transition:all 0.15s;position:relative;overflow:hidden;}
-.sl-btn::after{content:'';position:absolute;inset:0;background:var(--cyan);opacity:0;transition:opacity 0.15s;}
-.sl-btn:active::after{opacity:0.2;}
-.sl-btn:active{transform:scale(0.96);}
+.sl-input{flex:1;background:var(--card);border:1px solid var(--border);border-radius:2px;color:#fff;font-family:var(--font);font-size:14px;padding:10px 12px;outline:none;}
+.sl-btn{background:var(--cyan-dim);border:1px solid var(--cyan);color:var(--cyan);font-family:var(--mono);font-size:11px;padding:10px 14px;cursor:pointer;border-radius:2px;}
 
-/* TASK LIST */
 .task-list{list-style:none;}
-.task-row{display:flex;align-items:center;gap:8px;padding:11px 6px;border-bottom:1px solid var(--border);transition:background 0.15s;animation:slideIn 0.25s ease;}
-@keyframes slideIn{from{opacity:0;transform:translateX(-10px);}to{opacity:1;transform:translateX(0);}}
-.task-row:last-child{border-bottom:none;}
-.task-row:active{background:rgba(255,255,255,0.03);}
-.task-num{font-family:var(--mono);font-size:10px;color:var(--muted);min-width:22px;}
-.task-name{flex:1;font-size:15px;font-weight:500;color:var(--text);letter-spacing:0.3px;min-width:0;word-break:break-word;}
+.task-row{display:flex;align-items:center;gap:8px;padding:11px 6px;border-bottom:1px solid var(--border);}
+.task-name{flex:1;font-size:15px;font-weight:500;}
 .task-name.done{text-decoration:line-through;color:var(--muted);}
-.task-name.carried{color:var(--orange);}
-.task-xp{font-family:var(--mono);font-size:11px;color:var(--purple);min-width:50px;text-align:right;}
+.task-xp{font-family:var(--mono);font-size:11px;color:var(--purple);}
 .task-xp.earned{color:var(--cyan);}
-.task-del{background:none;border:none;color:var(--muted);cursor:pointer;font-size:18px;padding:0 4px;line-height:1;transition:color 0.15s;}
-.task-del:active{color:var(--red);}
-input[type="checkbox"]{width:18px;height:18px;cursor:pointer;accent-color:var(--cyan);flex-shrink:0;}
-.empty-msg{text-align:center;padding:2rem 0;color:var(--muted);font-family:var(--mono);font-size:11px;letter-spacing:1px;line-height:1.8;}
+.task-del{background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer;}
 
-/* NOTES */
-.notes-section{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px;padding-top:12px;border-top:1px dashed var(--border);}
-.notes-label{font-family:var(--mono);font-size:9px;letter-spacing:2px;margin-bottom:4px;}
-.notes-label.green{color:var(--green);}
-.notes-label.red{color:var(--red);}
-.sl-textarea{width:100%;background:var(--card);border:1px solid var(--border);border-radius:2px;color:var(--text);font-family:var(--font);font-size:13px;padding:8px;resize:none;outline:none;transition:border-color 0.2s;}
-.sl-textarea:focus{border-color:var(--cyan);}
-.sl-textarea::placeholder{color:var(--muted);}
+.timer-toggle-btn{background:none;border:1px solid var(--border);color:var(--muted);cursor:pointer;font-size:14px;padding:2px 6px;border-radius:2px;}
+.timer-toggle-btn.active{color:var(--gold);border-color:var(--gold);}
+.timer-sub-row{display:flex;align-items:center;gap:4px;padding:6px 6px 8px 30px;border-bottom:1px solid var(--border);background:rgba(245,158,11,0.03);flex-wrap:wrap;}
+.timer-mode-btn{background:var(--card);border:1px solid var(--border);color:var(--muted);font-family:var(--mono);font-size:9px;padding:4px 8px;cursor:pointer;border-radius:2px;}
+.timer-mode-btn.active-mode{color:var(--gold);border-color:var(--gold);background:var(--gold-dim);}
+.timer-duration-input{width:44px;background:var(--card);border:1px solid var(--border);color:#fff;font-family:var(--mono);font-size:11px;padding:4px 6px;text-align:center;}
+.timer-time-input{width:70px;background:var(--card);border:1px solid var(--border);color:#fff;font-family:var(--mono);font-size:11px;padding:4px 6px;}
+.timer-ctrl-btn{background:var(--card);border:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:10px;padding:4px 8px;cursor:pointer;border-radius:2px;}
+.timer-display{font-family:var(--mono);font-size:15px;font-weight:700;color:var(--gold);min-width:70px;text-align:center;}
 
-/* LEVEL UP OVERLAY */
-#lvl-overlay{position:fixed;inset:0;z-index:9990;display:none;align-items:center;justify-content:center;background:rgba(7,8,15,0.92);padding-top:var(--safe-top);padding-bottom:var(--safe-bottom);}
-#lvl-overlay.show{display:flex;}
-.lvl-card{text-align:center;animation:lvlPop 0.5s cubic-bezier(.36,.07,.19,.97);}
-@keyframes lvlPop{0%{transform:scale(0.3) rotate(-10deg);opacity:0;}60%{transform:scale(1.15) rotate(3deg);opacity:1;}100%{transform:scale(1) rotate(0deg);}}
-.lvl-icon{font-size:64px;animation:lvlSpin 0.8s ease;}
-@keyframes lvlSpin{from{transform:rotateY(0deg);}to{transform:rotateY(720deg);}}
-.lvl-title{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:4px;margin-top:12px;}
-.lvl-num{font-family:var(--mono);font-size:56px;font-weight:700;color:var(--cyan);text-shadow:0 0 40px var(--cyan);animation:numGlow 1s ease infinite alternate;}
-@keyframes numGlow{from{text-shadow:0 0 20px var(--cyan);}to{text-shadow:0 0 60px var(--cyan),0 0 100px var(--cyan-glow);}}
-.lvl-sub{font-family:var(--mono);font-size:14px;color:var(--gold);letter-spacing:3px;margin-top:4px;}
-.lvl-close{margin-top:20px;background:var(--cyan-dim);border:1px solid var(--cyan);color:var(--cyan);font-family:var(--mono);font-size:11px;padding:10px 28px;cursor:pointer;letter-spacing:2px;border-radius:2px;transition:all 0.2s;}
-.lvl-close:active{background:var(--cyan);color:#000;}
+.notes-section{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px;padding-top:12px;border-top:1px dashed var(--border);}
+.note-panel{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:12px;}
+.note-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
+.note-label{font-family:var(--mono);font-size:10px;letter-spacing:1.5px;text-transform:uppercase;}
+.shipped-panel .note-label{color:var(--gold);}
+.damage-panel .note-label{color:var(--red);}
+.note-rating{font-family:var(--mono);font-size:12px;font-weight:700;color:#fff;background:rgba(255,255,255,0.06);padding:2px 8px;border-radius:2px;}
+.note-slider{width:100%;margin:6px 0;accent-color:var(--cyan);}
+.note-heat-bar{width:100%;height:6px;background:var(--panel);border-radius:3px;overflow:hidden;margin-top:2px;}
+.note-heat-fill{height:100%;width:0%;border-radius:3px;transition:width 0.3s, background 0.3s;}
+.shipped-fill{background:linear-gradient(90deg, var(--green), var(--gold));}
+.damage-fill{background:linear-gradient(90deg, var(--green), var(--red));}
+.note-textarea{width:100%;background:var(--card);border:1px solid var(--border);border-radius:2px;color:var(--text);font-family:var(--font);font-size:13px;padding:8px;resize:none;margin-top:10px;}
 
-/* RANK UP OVERLAY */
-#rank-overlay{position:fixed;inset:0;z-index:9989;display:none;align-items:center;justify-content:center;background:rgba(7,8,15,0.92);padding-top:var(--safe-top);padding-bottom:var(--safe-bottom);}
-#rank-overlay.show{display:flex;}
-.rank-card{text-align:center;animation:rankBoom 0.6s cubic-bezier(.36,.07,.19,.97);}
-@keyframes rankBoom{0%{transform:scale(0) rotate(20deg);opacity:0;}50%{transform:scale(1.2) rotate(-5deg);}100%{transform:scale(1) rotate(0deg);opacity:1;}}
-.rank-burst{font-size:72px;animation:burstPulse 0.8s ease infinite alternate;}
-@keyframes burstPulse{from{transform:scale(1);}to{transform:scale(1.1);}}
-.rank-up-label{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:4px;margin-top:12px;}
-.rank-up-name{font-family:var(--mono);font-size:52px;font-weight:700;letter-spacing:4px;animation:rankGlow 0.8s infinite alternate;}
-@keyframes rankGlow{from{filter:brightness(1);}to{filter:brightness(1.4) drop-shadow(0 0 16px currentColor);}}
-.rank-up-desc{font-family:var(--mono);font-size:12px;color:var(--text);letter-spacing:2px;margin-top:8px;}
-.rank-close{margin-top:20px;border:1px solid currentColor;font-family:var(--mono);font-size:11px;padding:10px 28px;cursor:pointer;letter-spacing:2px;border-radius:2px;background:transparent;color:inherit;}
+#lvl-overlay,#rank-overlay,#cycle-overlay{position:fixed;inset:0;z-index:9990;display:none;align-items:center;justify-content:center;background:rgba(7,8,15,0.94);}
+.show{display:flex!important;}
+.lvl-card,.rank-card{text-align:center;animation:lvlPop 0.5s;}
+.cycle-overlay-card{background:var(--panel);border:1px solid var(--gold);border-radius:4px;padding:24px;max-width:420px;text-align:center;}
 
-/* TOAST */
-#toast{position:fixed;bottom:calc(24px + var(--safe-bottom));left:50%;transform:translateX(-50%) translateY(80px);background:var(--card);border:1px solid var(--cyan);color:var(--cyan);font-family:var(--mono);font-size:11px;padding:10px 20px;border-radius:3px;letter-spacing:2px;z-index:9988;transition:transform 0.3s cubic-bezier(.4,0,.2,1),opacity 0.3s;opacity:0;}
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--card);border:1px solid var(--cyan);color:var(--cyan);font-family:var(--mono);font-size:11px;padding:10px 20px;z-index:9988;opacity:0;transition:0.3s;border-radius:3px;}
 #toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
 
-/* PARTICLES */
-.particle{position:fixed;pointer-events:none;width:6px;height:6px;border-radius:50%;z-index:9995;animation:particleFly 0.8s ease-out forwards;}
-@keyframes particleFly{0%{opacity:1;transform:translate(0,0) scale(1);}100%{opacity:0;transform:translate(var(--tx),var(--ty)) scale(0);}}
-
-/* CARRY BADGE */
-.carry-badge{display:inline-block;background:rgba(249,115,22,0.15);border:1px solid var(--orange);color:var(--orange);font-family:var(--mono);font-size:8px;padding:1px 5px;border-radius:2px;letter-spacing:1px;margin-left:6px;vertical-align:middle;}
-
-.sys-footer{text-align:center;margin-top:14px;padding-bottom:20px;font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:2px;}
-
-/* HEADER TOGGLE ROW */
-.header-toggle-row{display:flex;justify-content:center;align-items:center;gap:8px;margin-top:10px;flex-wrap:wrap;}
-
-/* JARVIS VOICE TOGGLE */
-.jarvis-toggle{position:static;z-index:5;display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:9px;letter-spacing:1px;color:var(--muted);background:var(--card);border:1px solid var(--border);border-radius:2px;padding:6px 10px;cursor:pointer;transition:border-color 0.2s,color 0.2s;user-select:none;white-space:nowrap;}
-.jarvis-toggle.on{color:var(--cyan);border-color:var(--cyan);box-shadow:0 0 8px var(--cyan-glow);}
-.jarvis-dot{width:6px;height:6px;border-radius:50%;background:var(--muted);flex-shrink:0;}
-.jarvis-toggle.on .jarvis-dot{background:var(--cyan);box-shadow:0 0 6px var(--cyan);animation:jarvisPulse 1.6s ease infinite;}
-@keyframes jarvisPulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
-
-/* DATA STORE NAV BUTTON */
-.datastore-toggle{position:static;}
-.datastore-toggle:active{border-color:var(--gold);color:var(--gold);}
-@media (max-width:400px){
-  .jarvis-toggle{font-size:10px;padding:8px 12px;flex:1;justify-content:center;max-width:160px;}
-}
-
-/* DATA STORE PAGE */
-#datastore-page{position:fixed;inset:0;background:var(--bg);z-index:9992;display:none;flex-direction:column;overflow:hidden;padding-top:var(--safe-top);padding-bottom:var(--safe-bottom);}
-#datastore-page.show{display:flex;}
-.ds-header{display:flex;align-items:center;justify-content:space-between;padding:14px;padding-top:calc(14px + var(--safe-top));border-bottom:1px solid var(--border);flex-shrink:0;}
-.ds-title{font-family:var(--mono);font-size:13px;color:var(--gold);letter-spacing:3px;}
-.ds-back{background:var(--card);border:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:10px;padding:8px 12px;border-radius:2px;cursor:pointer;letter-spacing:1px;}
-.ds-back:active{border-color:var(--cyan);color:var(--cyan);}
-.ds-body{flex:1;overflow-y:auto;padding:14px;max-width:600px;margin:0 auto;width:100%;}
+#datastore-page{position:fixed;inset:0;background:var(--bg);z-index:9992;display:none;flex-direction:column;overflow:hidden;}
+.ds-header{display:flex;align-items:center;justify-content:space-between;padding:14px;border-bottom:1px solid var(--border);}
+.ds-back{background:var(--card);border:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:10px;padding:8px 12px;cursor:pointer;}
+.ds-body{flex:1;overflow-y:auto;padding:14px;max-width:600px;margin:0 auto;}
 
 .ds-summary-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:16px;}
 .ds-summary-box{background:var(--card);border:1px solid var(--border);border-radius:3px;padding:12px;text-align:center;}
 .ds-summary-val{font-family:var(--mono);font-size:20px;font-weight:700;color:var(--gold);}
-.ds-summary-lbl{font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:1px;margin-top:3px;text-transform:uppercase;}
+.ds-summary-lbl{font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;}
 
 .ds-section-lbl{font-family:var(--mono);font-size:10px;color:var(--cyan);letter-spacing:2px;margin:18px 0 8px;padding-bottom:6px;border-bottom:1px dashed var(--border);}
-.ds-empty{text-align:center;padding:2.5rem 1rem;color:var(--muted);font-family:var(--mono);font-size:11px;letter-spacing:1px;line-height:1.9;}
+.ds-empty{text-align:center;padding:2.5rem 1rem;color:var(--muted);font-family:var(--mono);font-size:11px;line-height:1.9;}
 
 .ds-chart-wrap{background:var(--panel);border:1px solid var(--border);border-radius:3px;padding:10px;margin-bottom:6px;}
 .ds-chart-legend{display:flex;gap:14px;justify-content:center;margin-top:8px;flex-wrap:wrap;}
-.ds-legend-item{display:flex;align-items:center;gap:5px;font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:1px;}
-.ds-legend-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0;}
+.ds-legend-item{display:flex;align-items:center;gap:5px;font-family:var(--mono);font-size:9px;color:var(--muted);}
+.ds-legend-dot{width:8px;height:8px;border-radius:2px;}
 
 .ds-range-tabs{display:flex;gap:6px;margin-bottom:10px;}
-.ds-range-tab{flex:1;background:var(--card);border:1px solid var(--border);color:var(--muted);font-family:var(--mono);font-size:10px;padding:8px 4px;border-radius:2px;cursor:pointer;text-align:center;letter-spacing:1px;transition:all 0.15s;}
+.ds-range-tab{flex:1;background:var(--card);border:1px solid var(--border);color:var(--muted);font-family:var(--mono);font-size:10px;padding:8px 4px;cursor:pointer;text-align:center;border-radius:2px;}
 .ds-range-tab.active{border-color:var(--gold);color:var(--gold);background:var(--gold-dim);}
 
-.ds-log-row{display:flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--border);border-radius:3px;padding:10px;margin-bottom:6px;}
-.ds-log-row.cleared{border-color:var(--green);}
+.ds-log-row{display:flex;align-items:flex-start;gap:10px;background:var(--panel);border:1px solid var(--border);border-radius:3px;padding:10px;margin-bottom:6px;flex-wrap:wrap;}
 .ds-log-date{font-family:var(--mono);font-size:10px;color:var(--text);min-width:56px;font-weight:700;}
-.ds-log-mid{flex:1;min-width:0;}
-.ds-log-goal{font-size:13px;color:var(--text);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.ds-log-tasks{font-family:var(--mono);font-size:9px;color:var(--muted);margin-top:2px;}
-.ds-log-xp{font-family:var(--mono);font-size:12px;color:var(--gold);text-align:right;min-width:60px;font-weight:700;}
-.ds-log-xp .max{color:var(--muted);font-weight:400;}
-.ds-log-check{font-size:14px;flex-shrink:0;}
 
-/* JARVIS CAPTION BAR */
-#jarvis-bar{position:fixed;left:50%;bottom:0;transform:translateX(-50%) translateY(100%);width:100%;max-width:600px;z-index:9986;display:flex;align-items:center;gap:10px;background:linear-gradient(180deg,rgba(13,15,26,0.97),rgba(7,8,15,0.99));border-top:1px solid var(--cyan);padding:12px 16px calc(12px + var(--safe-bottom));box-shadow:0 -8px 30px rgba(0,229,255,0.08);transition:transform 0.35s cubic-bezier(.4,0,.2,1);}
-#jarvis-bar.show{transform:translateX(-50%) translateY(0);}
-.jarvis-icon{width:30px;height:30px;border-radius:50%;border:1px solid var(--cyan);display:flex;align-items:center;justify-content:center;flex-shrink:0;position:relative;}
-.jarvis-icon-core{width:8px;height:8px;border-radius:50%;background:var(--cyan);box-shadow:0 0 10px var(--cyan);animation:jarvisCore 1.1s ease infinite;}
-@keyframes jarvisCore{0%,100%{transform:scale(1);opacity:1;}50%{transform:scale(1.5);opacity:0.6;}}
-.jarvis-icon::before{content:'';position:absolute;inset:-4px;border-radius:50%;border:1px solid rgba(0,229,255,0.25);animation:jarvisRing 1.6s ease infinite;}
-@keyframes jarvisRing{0%{transform:scale(0.85);opacity:0.8;}100%{transform:scale(1.25);opacity:0;}}
-.jarvis-text-wrap{flex:1;min-width:0;}
-.jarvis-label{font-family:var(--mono);font-size:8px;color:var(--cyan);letter-spacing:3px;margin-bottom:2px;}
-.jarvis-line{font-family:var(--font);font-size:13px;font-weight:500;color:#fff;letter-spacing:0.3px;line-height:1.35;}
-
-/* CHECK ANIMATION */
-@keyframes checkPop{0%{transform:scale(1);}50%{transform:scale(1.4);}100%{transform:scale(1);}}
-.check-pop{animation:checkPop 0.3s ease;}
+.jarvis-toggle{display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:9px;color:var(--muted);background:var(--card);border:1px solid var(--border);border-radius:2px;padding:6px 10px;cursor:pointer;user-select:none;}
+.jarvis-toggle.on{color:var(--cyan);border-color:var(--cyan);}
+.header-toggle-row{display:flex;justify-content:center;gap:8px;margin-top:10px;flex-wrap:wrap;}
 </style>
 </head>
 <body>
 
-<!-- BOOT SCREEN -->
 <div id="boot-screen">
   <div class="boot-logo">AWAKENING OS</div>
-  <div class="boot-sub">ARMAN'S PROTOCOL ∙ v4.0</div>
+  <div class="boot-sub">ARMAN'S PROTOCOL ∙ v5.0</div>
   <div class="boot-bar-wrap"><div class="boot-bar" id="boot-bar"></div></div>
   <div class="boot-status" id="boot-status">INITIALIZING...</div>
 </div>
 
-<!-- LEVEL UP OVERLAY -->
 <div id="lvl-overlay">
   <div class="lvl-card">
     <div class="lvl-icon">⚡</div>
     <div class="lvl-title">LEVEL UP</div>
     <div class="lvl-num" id="lvl-num">2</div>
-    <div class="lvl-sub">HUNTER ASCENDING</div>
     <button class="lvl-close" onclick="closeLvlOverlay()">[ CONTINUE ]</button>
   </div>
 </div>
 
-<!-- RANK UP OVERLAY -->
 <div id="rank-overlay">
-  <div class="rank-card" id="rank-card">
-    <div class="rank-burst" id="rank-burst">🌟</div>
+  <div class="rank-card">
+    <div class="rank-burst">🌟</div>
     <div class="rank-up-label">RANK ASCENSION</div>
-    <div class="rank-up-name" id="rank-up-name">D</div>
-    <div class="rank-up-desc" id="rank-up-desc">HUNTER RANK ELEVATED</div>
-    <button class="rank-close" id="rank-close-btn" onclick="closeRankOverlay()">[ ACKNOWLEDGED ]</button>
+    <div class="rank-up-name" id="rank-up-name">E</div>
+    <button class="rank-close" onclick="closeRankOverlay()">[ ACKNOWLEDGED ]</button>
+  </div>
+</div>
+
+<div id="cycle-overlay">
+  <div class="cycle-overlay-card">
+    <div class="cycle-overlay-icon">🎯</div>
+    <div class="cycle-overlay-title">[ NEW 15-DAY CYCLE ]</div>
+    <input class="cycle-overlay-input" id="cycle-overlay-input" type="text" placeholder="Enter your 15-day target...">
+    <button class="cycle-overlay-btn" onclick="confirmCycleGoal()">[ LOCK IN ]</button>
   </div>
 </div>
 
 <div id="toast"></div>
 
-<div id="jarvis-bar">
-  <div class="jarvis-icon"><div class="jarvis-icon-core"></div></div>
-  <div class="jarvis-text-wrap">
-    <div class="jarvis-label">JARVIS</div>
-    <div class="jarvis-line" id="jarvis-line">—</div>
-  </div>
-</div>
-
-<!-- DATA STORE PAGE -->
 <div id="datastore-page">
   <div class="ds-header">
     <span class="ds-title">[ DATA STORE ]</span>
     <button class="ds-back" onclick="closeDataStore()">[ ← BACK ]</button>
   </div>
-  <div class="ds-body" id="ds-body">
-    <!-- populated by renderDataStore() -->
-  </div>
+  <div class="ds-body" id="ds-body"></div>
 </div>
 
 <div class="sl" id="main">
   <div class="sys-header">
     <div class="sys-title">[ SYSTEM ACTIVE ]</div>
     <div class="sys-name">Awakening OS</div>
-    <div class="sys-sub">ARMAN'S PROTOCOL ∙ UNLIMITED HUNTER SPRINT</div>
+    <div class="sys-sub">ARMAN'S PROTOCOL ∙ LOCAL HUNTER SPRINT</div>
     <div class="live-date" id="live-date">—</div>
     <div class="header-toggle-row">
-      <div class="jarvis-toggle datastore-toggle" id="datastore-toggle" onclick="openDataStore()">
-        <span>📊 DATA</span>
-      </div>
-      <div class="jarvis-toggle on" id="jarvis-toggle" onclick="toggleJarvis()">
-        <span class="jarvis-dot"></span><span id="jarvis-toggle-label">JARVIS</span>
-      </div>
+      <div class="jarvis-toggle" onclick="openDataStore()">📊 DATA</div>
+      <div class="jarvis-toggle on" id="jarvis-toggle" onclick="toggleJarvis()"><span class="jarvis-dot"></span> JARVIS</div>
     </div>
   </div>
 
-  <div class="goal-panel">
-    <input class="goal-input" id="goal-input" type="text" placeholder="Enter your conquest objective..." oninput="saveGoal()">
+  <div class="goal-panel" id="goal-panel" data-label="[ FINAL OBJECTIVE ]">
+    <div id="goal-content"></div>
+  </div>
+
+  <div class="cycle-panel">
+    <input class="cycle-input" id="cycle-input" type="text" placeholder="15-day target objective..." oninput="saveCycleGoal()">
+    <div class="cycle-info-row">
+      <span class="cycle-dates" id="cycle-dates">—</span>
+      <span class="cycle-countdown" id="cycle-countdown">—</span>
+    </div>
+    <div class="cycle-progress-wrap"><div class="cycle-progress-fill" id="cycle-progress-fill" style="width:0%"></div></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px;">
+      <span class="cycle-number" id="cycle-number">Cycle #1</span>
+      <button class="cycle-reset-btn" id="cycle-reset-btn" onclick="triggerCycleReset()" style="display:none;">[ RESET CYCLE ]</button>
+    </div>
   </div>
 
   <div class="stats-grid">
@@ -364,13 +281,12 @@ input[type="checkbox"]{width:18px;height:18px;cursor:pointer;accent-color:var(--
     <div class="xp-track"><div class="xp-fill" id="xp-bar" style="width:0%"></div></div>
     <div class="xp-row"><span class="xp-lbl">TODAY'S XP</span><span class="xp-val" id="day-xp-label">0 / 100</span></div>
     <div class="xp-track sm"><div class="xp-fill sm" id="day-xp-bar" style="width:0%"></div></div>
-    <div class="xp-row" id="carry-note-row" style="display:none;"><span class="xp-lbl" style="color:var(--orange);">↻ CARRIED IN</span><span class="xp-val" id="carry-note-val" style="color:var(--orange);"></span></div>
   </div>
 
   <div class="rank-bar-section">
     <div class="xp-row"><span class="xp-lbl">RANK PROGRESS</span><span class="xp-val" id="rank-xp-label">0 / 500</span></div>
     <div class="rank-progress" id="rank-segs"></div>
-    <div class="rank-labels"><span class="rank-lbl">E</span><span class="rank-lbl">D</span><span class="rank-lbl">C</span><span class="rank-lbl">B</span><span class="rank-lbl">A</span><span class="rank-lbl">S</span></div>
+    <div class="rank-labels"><span>E</span><span>D</span><span>C</span><span>B</span><span>A</span><span>S</span></div>
   </div>
 
   <div class="ribbon-wrap">
@@ -378,1028 +294,367 @@ input[type="checkbox"]{width:18px;height:18px;cursor:pointer;accent-color:var(--
     <div class="ribbon" id="ribbon"></div>
   </div>
 
-  <div class="quest-panel" id="quest-panel">
+  <div class="quest-panel">
     <div class="quest-hdr">
       <span class="quest-title" id="quest-title">[ DAY 1 — QUEST LOG ]</span>
       <span class="day-badge" id="day-badge">0 / 100 XP</span>
     </div>
-    <div id="quest-body">
-      <div class="add-row">
-        <input class="sl-input" id="task-input" type="text" placeholder="Enter quest name...">
-        <button class="sl-btn" onclick="addTask()">+ ADD</button>
-      </div>
-      <ul class="task-list" id="task-list"></ul>
-      <div class="notes-section">
-        <div>
-          <div class="notes-label green">[ RESULT SHIPPED ]</div>
-          <textarea class="sl-textarea" rows="3" id="shipped" placeholder="What did you finish today?" oninput="saveNotes()"></textarea>
-        </div>
-        <div>
-          <div class="notes-label red">[ DAMAGE TAKEN ]</div>
-          <textarea class="sl-textarea" rows="3" id="friction" placeholder="What wasted your time?" oninput="saveNotes()"></textarea>
-        </div>
-      </div>
-    </div>
+    <div id="quest-body"></div>
   </div>
 
-  <div class="sys-footer">SYSTEM ∙ v4.0 ∙ ARMAN'S PROTOCOL ∙ ALL DATA LOCAL</div>
+  <div class="sys-footer">SYSTEM ∙ v5.0 ∙ ARMAN'S PROTOCOL ∙ FULLY LOCAL</div>
 </div>
 
 <script>
-// ─── STATE ─────────────────────────────────────────────────────────────────
-const STORAGE_KEY = 'sl_arman_v4';
-let data = { goal:'', currentDay:1, days:{}, totalXP:0, startDate:null };
-let prevLevel = 1, prevRank = 'E';
-let audioCtx = null;
-let dsOpen = false; // tracks whether we pushed a history state for the Data Store page
+const STORAGE_KEY = 'sl_arman_v5';
+let data = { goal:'', currentDay:1, days:{}, startDate:null, cycleGoal:'', cycleStartDate:null, cycleNumber:1, cyclesArchive:[] };
+let prevLevel = 1, prevRank = 'E', audioCtx = null, timerInterval = null;
 
-// ─── AUDIO ENGINE ──────────────────────────────────────────────────────────
-function getAudio() {
-  if (!audioCtx) { try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {} }
-  return audioCtx;
-}
-function beep(freq, type, dur, vol, delay=0) {
-  const ctx = getAudio(); if(!ctx) return;
-  const osc = ctx.createOscillator();
-  const gain = ctx.createGain();
-  osc.connect(gain); gain.connect(ctx.destination);
-  osc.type = type || 'sine';
-  osc.frequency.setValueAtTime(freq, ctx.currentTime + delay);
-  gain.gain.setValueAtTime(vol||0.15, ctx.currentTime + delay);
-  gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + delay + dur);
-  osc.start(ctx.currentTime + delay);
-  osc.stop(ctx.currentTime + delay + dur);
-}
-function playSelect() { beep(660,'square',0.08,0.1); beep(880,'square',0.08,0.08,0.08); }
-function playCheck() { beep(440,'sine',0.05,0.12); beep(660,'sine',0.1,0.12,0.06); beep(880,'sine',0.15,0.1,0.13); }
-function playUncheck() { beep(440,'sine',0.08,0.08); beep(330,'sine',0.1,0.06,0.09); }
-function playAdd() { beep(550,'square',0.06,0.1); beep(700,'square',0.08,0.08,0.07); }
-function playDelete() { beep(300,'sawtooth',0.12,0.1); beep(200,'sawtooth',0.1,0.08,0.1); }
-function playLevelUp() {
-  [261,329,392,523,659,784,1047].forEach((f,i)=>beep(f,'sine',0.25,0.18,i*0.08));
-}
-function playRankUp() {
-  [523,659,784,1047,1319].forEach((f,i)=>beep(f,'sawtooth',0.3,0.2,i*0.1));
-  [523,659,784,1047,1319].forEach((f,i)=>beep(f,'sine',0.25,0.15,i*0.1+0.6));
-}
-function playBoot() {
-  [220,330,440,550,660].forEach((f,i)=>beep(f,'square',0.15,0.1,i*0.12));
-}
-function playMissed() { beep(200,'sawtooth',0.2,0.12); beep(150,'sawtooth',0.2,0.1,0.18); }
-function playDayAdd() { beep(440,'sine',0.1,0.12); beep(550,'sine',0.1,0.1,0.1); beep(660,'sine',0.15,0.1,0.2); }
+function getAudio() { if(!audioCtx) try{audioCtx=new (window.AudioContext||window.webkitAudioContext)}catch(e){} return audioCtx; }
+function beep(f,t,d,v,delay=0){const ctx=getAudio();if(!ctx)return;const o=ctx.createOscillator(),g=ctx.createGain();o.connect(g);g.connect(ctx.destination);o.type=t;o.frequency.setValueAtTime(f,ctx.currentTime+delay);g.gain.setValueAtTime(v,ctx.currentTime+delay);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+delay+d);o.start(ctx.currentTime+delay);o.stop(ctx.currentTime+delay+d);}
+function playSelect(){beep(660,'square',0.08,0.1);beep(880,'square',0.08,0.08,0.08);}
+function playCheck(){beep(440,'sine',0.05,0.12);beep(660,'sine',0.1,0.12,0.06);beep(880,'sine',0.15,0.1,0.13);}
+function playAdd(){beep(550,'square',0.06,0.1);beep(700,'square',0.08,0.08,0.07);}
+function playTimerDone(){beep(880,'sine',0.12,0.18);beep(1100,'sine',0.12,0.15,0.12);beep(1320,'sine',0.2,0.15,0.25);}
+function playBoot(){[220,330,440,550,660].forEach((f,i)=>beep(f,'square',0.15,0.1,i*0.12));}
 
-// ─── JARVIS VOICE ENGINE ─────────────────────────────────────────────────
 let jarvisOn = true;
-let jarvisVoice = null;
-let jarvisQueue = [];
-let jarvisSpeaking = false;
-let jarvisBarTimer = null;
+function toggleJarvis(){jarvisOn=!jarvisOn; document.getElementById('jarvis-toggle').classList.toggle('on',jarvisOn); playSelect();}
+function speak(t){if(jarvisOn&&'speechSynthesis' in window){const u=new SpeechSynthesisUtterance(t);u.rate=0.95;u.pitch=0.75;speechSynthesis.speak(u);}}
 
-(function initJarvisVoice() {
-  try { const s = localStorage.getItem('sl_jarvis_on'); if(s!==null) jarvisOn = s==='1'; } catch(e) {}
-  if (!('speechSynthesis' in window)) { jarvisOn = false; return; }
-  function pickVoice() {
-    const voices = speechSynthesis.getVoices();
-    if (!voices.length) return;
-    const prefs = [
-      v => /male/i.test(v.name) && /en/i.test(v.lang),
-      v => /Daniel|Google UK English Male|Microsoft (David|Guy|Ryan)|Alex|Fred/i.test(v.name),
-      v => /en/i.test(v.lang),
-      v => true
-    ];
-    for (const test of prefs) {
-      const found = voices.find(test);
-      if (found) { jarvisVoice = found; return; }
-    }
-  }
-  pickVoice();
-  if (speechSynthesis.onvoiceschanged !== undefined) speechSynthesis.onvoiceschanged = pickVoice;
-})();
+function todayStr(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function formatDate(s){const m=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];const[,,d]=s.split('-');return m[parseInt(s.split('-')[1])-1]+' '+parseInt(d);}
+function updateClock(){const n=new Date();document.getElementById('live-date').textContent=['SUN','MON','TUE','WED','THU','FRI','SAT'][n.getDay()]+' '+['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'][n.getMonth()]+' '+n.getDate()+' '+n.getFullYear()+' ∙ '+String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0')+':'+String(n.getSeconds()).padStart(2,'0');}
+setInterval(updateClock,1000); updateClock();
 
-function setJarvisToggleUI() {
-  const el = document.getElementById('jarvis-toggle');
-  const lbl = document.getElementById('jarvis-toggle-label');
-  if (!el) return;
-  el.classList.toggle('on', jarvisOn);
-  if (lbl) lbl.textContent = jarvisOn ? 'JARVIS' : 'JARVIS: MUTED';
-}
-
-function toggleJarvis() {
-  jarvisOn = !jarvisOn;
-  try { localStorage.setItem('sl_jarvis_on', jarvisOn?'1':'0'); } catch(e) {}
-  setJarvisToggleUI();
-  playSelect();
-  if (!jarvisOn) {
-    try { speechSynthesis.cancel(); } catch(e) {}
-    jarvisQueue = []; jarvisSpeaking = false;
-    hideJarvisBar();
-  } else {
-    speak('JARVIS online.');
-  }
-}
-
-function showJarvisBar(text) {
-  const bar = document.getElementById('jarvis-bar');
-  const line = document.getElementById('jarvis-line');
-  if (!bar || !line) return;
-  line.textContent = text;
-  bar.classList.add('show');
-  clearTimeout(jarvisBarTimer);
-  jarvisBarTimer = setTimeout(hideJarvisBar, 4200);
-}
-function hideJarvisBar() {
-  const bar = document.getElementById('jarvis-bar');
-  if (bar) bar.classList.remove('show');
-}
-
-function speak(text) {
-  if (!text) return;
-  jarvisQueue.push(text);
-  processJarvisQueue();
-}
-function processJarvisQueue() {
-  if (jarvisSpeaking || !jarvisQueue.length) return;
-  const text = jarvisQueue.shift();
-  showJarvisBar(text);
-  if (!jarvisOn || !('speechSynthesis' in window)) {
-    jarvisSpeaking = true;
-    setTimeout(() => { jarvisSpeaking = false; processJarvisQueue(); }, 1800);
-    return;
-  }
-  try {
-    const utter = new SpeechSynthesisUtterance(text);
-    if (jarvisVoice) utter.voice = jarvisVoice;
-    utter.rate = 0.95; utter.pitch = 0.75; utter.volume = 1;
-    jarvisSpeaking = true;
-    utter.onend = () => { jarvisSpeaking = false; processJarvisQueue(); };
-    utter.onerror = () => { jarvisSpeaking = false; processJarvisQueue(); };
-    speechSynthesis.speak(utter);
-  } catch(e) {
-    jarvisSpeaking = false;
-    setTimeout(processJarvisQueue, 100);
-  }
-}
-
-function speakSequence(lines) { lines.forEach(l => speak(l)); }
-
-// ─── JARVIS LINE BANKS ─────────────────────────────────────────────────────
-const JARVIS_LINES = {
-  bootMorning: ['Good morning, Boss.','Systems restored. Good morning, Boss.','Rise and grind, Boss. Good morning.','Another sunrise, another mission, Boss.'],
-  bootAfternoon: ['Good afternoon, Boss.','Systems online. Good afternoon, Boss.','Afternoon, Boss. The system is ready.'],
-  bootEvening: ['Good evening, Boss.','Evening, Boss. Systems online.','Good evening, Boss. Let\'s finish strong.'],
-  bootNight: ['Boss. It\'s late, but the system is online.','Late night session, Boss. I\'m with you.','Good evening, Boss. Burning the midnight oil, I see.'],
-  missionReady: ['Today\'s mission is ready.','Your objectives are loaded, Boss.','The board is set, Boss.','Ready when you are, Boss.'],
-  yesterdayComplete: ['Excellent work, Boss. Yesterday\'s objectives were completed successfully.','Outstanding, Boss. You cleared every mission yesterday.','Yesterday was a clean sweep, Boss. Let\'s surpass it.'],
-  yesterdayMissed: ['Warning, Boss. Yesterday\'s mission was not fully completed.','Heads up, Boss. Outstanding quests have been carried forward.','Some objectives slipped yesterday, Boss. They\'ve been transferred to today.'],
-  questAdded: ['New mission registered.','Quest logged, Boss.','Objective added to the board.','Mission added. Good thinking, Boss.'],
-  taskComplete: ['Quest completed.','Excellent.','XP acquired.','Target neutralized, Boss.','Nicely done.','One down, Boss.'],
-  allTasksComplete: ['Congratulations, Boss. All missions completed. Outstanding performance.','Every objective cleared, Boss. That\'s how it\'s done.','Full clear, Boss. Exceptional work today.'],
-  levelUp: ['Level up. Power increased.','Level up, Boss. You are growing stronger.','New level reached. Power increased.'],
-  rankUp: ['Congratulations, Boss. Rank promotion confirmed.','Rank ascension complete, Boss. Well earned.','A new rank, Boss. The system acknowledges your growth.'],
-  streak7: ['Seven day streak achieved.','One week of consistency, Boss. Impressive.'],
-  streak30: ['Outstanding consistency, Boss.','Thirty days strong. That\'s discipline, Boss.'],
-  streak100: ['Legendary discipline detected, Boss.','One hundred days, Boss. Few reach this point.'],
-  nightReminder: ['Boss. You still have unfinished missions.','It\'s getting late, Boss, and objectives remain open.','Before you rest, Boss — a few quests are still outstanding.']
-};
-function jarvisPick(key) {
-  const arr = JARVIS_LINES[key]; if(!arr||!arr.length) return '';
-  return arr[Math.floor(Math.random()*arr.length)];
-}
-
-// ─── DATE HELPERS ──────────────────────────────────────────────────────────
-function todayStr() {
-  const n = new Date();
-  return n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0');
-}
-function formatDate(str) {
-  if(!str) return '';
-  const [y,m,d] = str.split('-');
-  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  return months[parseInt(m)-1]+' '+parseInt(d);
-}
-function updateClock() {
-  const n = new Date();
-  const days = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
-  const months = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
-  const h = String(n.getHours()).padStart(2,'0');
-  const mi = String(n.getMinutes()).padStart(2,'0');
-  const s = String(n.getSeconds()).padStart(2,'0');
-  const el = document.getElementById('live-date');
-  if(el) el.textContent = days[n.getDay()]+' '+months[n.getMonth()]+' '+n.getDate()+' '+n.getFullYear()+' ∙ '+h+':'+mi+':'+s;
-}
-
-// ─── RANK SYSTEM ───────────────────────────────────────────────────────────
-const RANKS = [
-  {name:'E', min:0,    max:500,  color:'#6b7280', emoji:'⚔️',  desc:'INITIATE HUNTER'},
-  {name:'D', min:500,  max:1000, color:'#10b981', emoji:'🗡️', desc:'NOVICE HUNTER'},
-  {name:'C', min:1000, max:1500, color:'#3b82f6', emoji:'🔷',  desc:'SKILLED HUNTER'},
-  {name:'B', min:1500, max:2000, color:'#a855f7', emoji:'💜',  desc:'ELITE HUNTER'},
-  {name:'A', min:2000, max:2500, color:'#f59e0b', emoji:'⭐',  desc:'VETERAN HUNTER'},
-  {name:'S', min:2500, max:Infinity, color:'#ef4444', emoji:'🔴', desc:'SHADOW MONARCH'},
-];
-function getRankInfo(xp) {
-  for(let i=RANKS.length-1;i>=0;i--) { if(xp>=RANKS[i].min) return RANKS[i]; }
-  return RANKS[0];
-}
-function getLevelFromXP(xp) { return Math.floor(xp/100)+1; }
-
-// ─── DATA ──────────────────────────────────────────────────────────────────
 const BASE_DAY_XP = 100;
-function blank(date) { return {tasks:[],shipped:'',friction:'',dayGoal:'',date:date||null,locked:false,carriedFrom:null,poolXP:BASE_DAY_XP}; }
+function blank(date){return{tasks:[],shippedRating:0,shippedNotes:'',damageRating:0,damageNotes:'',dayGoal:'',date:date||null,locked:false,poolXP:BASE_DAY_XP};}
+function dateStrOffset(base,offset){const d=new Date(base+'T00:00:00');d.setDate(d.getDate()+offset);return d.toISOString().split('T')[0];}
 
-function dateStrOffset(base, offset) {
-  const d = new Date(base+'T00:00:00');
-  d.setDate(d.getDate()+offset);
-  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+function toRoman(num){if(num<1)return'';const v=[1000,900,500,400,100,90,50,40,10,9,5,4,1],r=['M','CM','D','CD','C','XC','L','XL','X','IX','V','IV','I'];let res='';for(let i=0;i<v.length;i++){while(num>=v[i]){res+=r[i];num-=v[i];}}return res;}
+
+function getCycleEndDate(s){const d=new Date(s+'T00:00:00');d.setDate(d.getDate()+14);return d.toISOString().split('T')[0];}
+function getCycleDaysRemaining(){if(!data.cycleStartDate)return 0;const end=getCycleEndDate(data.cycleStartDate);return Math.max(Math.ceil((new Date(end+'T00:00:00')-new Date(todayStr()+'T00:00:00'))/(1000*60*60*24)),0);}
+function isCycleExpired(){return getCycleDaysRemaining()<=0;}
+function saveCycleGoal(){data.cycleGoal=document.getElementById('cycle-input').value;save();}
+function updateCycleUI(){
+  const inp=document.getElementById('cycle-input'), dates=document.getElementById('cycle-dates'), count=document.getElementById('cycle-countdown'),
+        fill=document.getElementById('cycle-progress-fill'), btn=document.getElementById('cycle-reset-btn'), num=document.getElementById('cycle-number');
+  if(inp)inp.value=data.cycleGoal||'';
+  if(!data.cycleStartDate){dates.textContent='No active cycle';count.textContent='—';fill.style.width='0%';btn.style.display='none';num.textContent='Cycle #'+(data.cycleNumber||1);return;}
+  const end=getCycleEndDate(data.cycleStartDate), rem=getCycleDaysRemaining(), elapsed=getCycleElapsedDays();
+  dates.textContent=formatDate(data.cycleStartDate)+' → '+formatDate(end);
+  if(rem<=0){count.textContent='CYCLE COMPLETE';count.classList.add('expired');}else{count.textContent=rem+' DAY'+(rem!==1?'S':'')+' LEFT';count.classList.remove('expired');}
+  fill.style.width=Math.min(Math.round((elapsed/15)*100),100)+'%';
+  btn.style.display=rem<=0?'inline-block':'none'; num.textContent='Cycle #'+(data.cycleNumber||1);
+}
+function getCycleElapsedDays(){if(!data.cycleStartDate)return 0;const s=new Date(data.cycleStartDate+'T00:00:00'),t=new Date(todayStr()+'T00:00:00');return Math.max(0,Math.min(Math.floor((t-s)/(1000*60*60*24)),15));}
+function triggerCycleReset(){if(isCycleExpired()){document.getElementById('cycle-overlay-input').value='';document.getElementById('cycle-overlay').classList.add('show');}}
+function confirmCycleGoal(){const v=document.getElementById('cycle-overlay-input').value.trim();if(!v)return;data.cycleGoal=v;data.cycleStartDate=todayStr();if(isCycleExpired()||!data.cycleNumber){if(!data.cyclesArchive)data.cyclesArchive=[];if(data.cycleGoal&&data.cycleStartDate)data.cyclesArchive.push({goal:data.cycleGoal,startDate:data.cycleStartDate,number:data.cycleNumber||1});data.cycleNumber=(data.cycleNumber||1)+1;}save();updateAllCycleDisplays();document.getElementById('cycle-overlay').classList.remove('show');playAdd();speak('New 15-day cycle initiated.');}
+function initCycle(){if(!data.cycleStartDate){data.cycleStartDate=todayStr();data.cycleNumber=1;save();} if(isCycleExpired()&&data.cycleGoal){triggerCycleReset();} updateAllCycleDisplays();}
+
+function updateFinalObjectivePanel(){
+  const container=document.getElementById('goal-content'); if(!container)return;
+  if(data.cycleGoal && data.cycleStartDate){
+    const status=isCycleExpired()?'COMPLETED':'PENDING', cls=status==='COMPLETED'?'completed':'pending';
+    container.innerHTML=`<div class="goal-display"><strong>${toRoman(data.cycleNumber||1)}. ${escapeHtml(data.cycleGoal)}</strong><span class="goal-status ${cls}">${status}</span></div>`;
+  }else{
+    container.innerHTML=`<input class="goal-input" id="goal-input" type="text" placeholder="Enter your conquest objective..." oninput="saveGoal()" value="${data.goal||''}">`;
+  }
+}
+function updateAllCycleDisplays(){updateCycleUI(); updateFinalObjectivePanel();}
+
+function save(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(data));}catch(e){} updateStats(); buildRibbon(); updateAllCycleDisplays();}
+function saveGoal(){data.goal=document.getElementById('goal-input')?.value||'';save();}
+
+function archiveDay(n,day){
+  if(!data.archive)data.archive=[];
+  if(data.archive.find(a=>a.date===day.date))return;
+  const pool=day.poolXP||BASE_DAY_XP, earned=dayEarned(n), total=day.tasks.length, done=day.tasks.filter(t=>t.done).length;
+  data.archive.push({date:day.date,dayNum:n,dayGoal:day.dayGoal||'',shippedRating:day.shippedRating||0,shippedNotes:day.shippedNotes||'',damageRating:day.damageRating||0,damageNotes:day.damageNotes||'',poolXP:pool,earnedXP:earned,tasksTotal:total,tasksDone:done,taskDetails:day.tasks.map(t=>({name:t.name,done:t.done,carried:t.carried||false}))});
+  data.archive.sort((a,b)=>a.date<b.date?-1:1);
 }
 
-// ─── DATA STORE (ARCHIVE) ───────────────────────────────────────────────────
-function archiveDay(dayNum, day) {
-  if(!data.archive) data.archive=[];
-  if(data.archive.find(a=>a.date===day.date)) return;
-  const pool=day.poolXP===undefined?BASE_DAY_XP:day.poolXP;
-  const earned=dayEarned(dayNum);
-  const total=day.tasks.length;
-  const done=day.tasks.filter(t=>t.done).length;
-  data.archive.push({
-    date: day.date,
-    dayNum: dayNum,
-    dayGoal: day.dayGoal||'',
-    poolXP: pool,
-    earnedXP: earned,
-    leftoverXP: Math.max(pool-earned,0),
-    tasksTotal: total,
-    tasksDone: done,
-    tasksCarriedIn: day.tasks.filter(t=>t.carried).length,
-    cleared: total>0 && done===total,
-    shipped: day.shipped||'',
-    friction: day.friction||''
-  });
-  data.archive.sort((a,b)=> a.date<b.date?-1:(a.date>b.date?1:0));
+function checkAndProcessMissedDays(){
+  const today=todayStr(); const nums=Object.keys(data.days).map(Number);
+  for(let n of nums){
+    const day=data.days[n]; if(!day||day.date>=today||day.locked)continue;
+    day.locked=true; archiveDay(n,day);
+    const inc=day.tasks.filter(t=>!t.done);
+    if(inc.length) day._pendingCarry=inc.map(t=>({...t,id:Date.now()+Math.random(),done:false,carried:true,timer:t.timer?{...t.timer,running:false,startTime:null}:undefined}));
+    const earned=dayEarned(n), leftover=Math.max((day.poolXP||BASE_DAY_XP)-earned,0);
+    day._pendingXPCarry=leftover;
+  }
+  let todayNum=null; for(let n of nums) if(data.days[n].date===today){todayNum=n;break;}
+  if(todayNum){
+    const prev=data.days[todayNum-1];
+    if(prev&&prev._pendingCarry){prev._pendingCarry.forEach(ct=>{if(!data.days[todayNum].tasks.find(t=>t.name===ct.name&&t.carried))data.days[todayNum].tasks.unshift(ct);}); delete prev._pendingCarry;}
+    if(prev&&prev._pendingXPCarry){if(!data.days[todayNum]._xpCarriedIn){data.days[todayNum].poolXP=BASE_DAY_XP+prev._pendingXPCarry; data.days[todayNum]._xpCarriedIn=true;} delete prev._pendingXPCarry;}
+  }
 }
 
-function load() {
-  try { const s=localStorage.getItem(STORAGE_KEY); if(s) data=JSON.parse(s); } catch(e) {}
-  if(!data.days) data.days={};
-  if(!data.archive) data.archive=[];
-  if(!data.startDate) data.startDate=todayStr();
-
-  const today=todayStr();
-  const tomorrowStr=dateStrOffset(today,1);
-
-  let todayNum=null, tomorrowNum=null;
-  const nums=Object.keys(data.days).map(Number).sort((a,b)=>a-b);
-  nums.forEach(n=>{
-    if(data.days[n].date===today) todayNum=n;
-    if(data.days[n].date===tomorrowStr) tomorrowNum=n;
-  });
-
-  if(todayNum===null){
-    const next=(nums.length?Math.max(...nums):0)+1;
-    data.days[next]=blank(today);
-    todayNum=next;
-  }
-  if(tomorrowNum===null){
-    const allNums=Object.keys(data.days).map(Number);
-    const next=(allNums.length?Math.max(...allNums):0)+1;
-    data.days[next]=blank(tomorrowStr);
-    tomorrowNum=next;
-  }
-
-  document.getElementById('goal-input').value=data.goal||'';
+function load(){
+  try{const s=localStorage.getItem(STORAGE_KEY);if(s)data=JSON.parse(s);}catch(e){}
+  if(!data.days)data.days={}; if(!data.archive)data.archive=[]; if(!data.cyclesArchive)data.cyclesArchive=[];
+  if(!data.startDate)data.startDate=todayStr();
+  const today=todayStr(), tomorrow=dateStrOffset(today,1);
+  let todayNum=null; const nums=Object.keys(data.days).map(Number).sort((a,b)=>a-b);
+  for(let n of nums){if(data.days[n].date===today)todayNum=n;}
+  if(!todayNum){ const next=(nums.length?Math.max(...nums):0)+1; data.days[next]=blank(today); todayNum=next; }
+  if(!Object.values(data.days).some(d=>d.date===tomorrow)){ const next=Math.max(...Object.keys(data.days).map(Number))+1; data.days[next]=blank(tomorrow); }
   checkAndProcessMissedDays();
+  initCycle();
   buildRibbon();
   switchDay(todayNum);
-  prevLevel=getLevelFromXP(totalXP());
-  prevRank=getRankInfo(totalXP()).name;
-  setJarvisToggleUI();
-  runJarvisDailyBriefing(today, todayNum);
+  prevLevel=getLevelFromXP(totalXP()); prevRank=getRankInfo(totalXP()).name;
+  document.getElementById('jarvis-toggle').classList.toggle('on',jarvisOn);
+  startTimerEngine();
 }
 
-// ─── JARVIS DAILY BRIEFING ──────────────────────────────────────────────────
-function runJarvisDailyBriefing(today, todayNum) {
-  let alreadyGreetedToday = false;
-  try { alreadyGreetedToday = sessionStorage.getItem('jarvis_greeted')===today; } catch(e) {}
+function dayPool(n){return (data.days[n]?.poolXP)||BASE_DAY_XP;}
+function xpPerTask(n){const d=data.days[n];if(!d)return 0;const t=d.tasks.length;return t?Math.floor(dayPool(n)/t):0;}
+function dayEarned(n){const d=data.days[n];if(!d)return 0;return d.tasks.filter(t=>t.done).length*xpPerTask(n);}
+function totalXP(){return Object.keys(data.days).reduce((s,k)=>s+dayEarned(parseInt(k)),0);}
+function getLevelFromXP(xp){return Math.floor(xp/100)+1;}
+const RANKS=[{name:'E',min:0,max:500,color:'#6b7280'},{name:'D',min:500,max:1000,color:'#10b981'},{name:'C',min:1000,max:1500,color:'#3b82f6'},{name:'B',min:1500,max:2000,color:'#a855f7'},{name:'A',min:2000,max:2500,color:'#f59e0b'},{name:'S',min:2500,max:Infinity,color:'#ef4444'}];
+function getRankInfo(xp){for(let i=RANKS.length-1;i>=0;i--)if(xp>=RANKS[i].min)return RANKS[i];return RANKS[0];}
+function daysClear(){return Object.values(data.days).filter(d=>d.tasks.length&&d.tasks.every(t=>t.done)).length;}
 
-  const hour = new Date().getHours();
-  let timeKey = 'bootMorning';
-  if (hour>=12 && hour<17) timeKey='bootAfternoon';
-  else if (hour>=17 && hour<22) timeKey='bootEvening';
-  else if (hour>=22 || hour<5) timeKey='bootNight';
-
-  if (!alreadyGreetedToday) {
-    speak(jarvisPick(timeKey));
-
-    const yesterdayStr = dateStrOffset(today, -1);
-    let yesterdayEntry = null;
-    Object.keys(data.days).forEach(k=>{ if(data.days[k].date===yesterdayStr) yesterdayEntry=data.days[k]; });
-
-    if (yesterdayEntry && yesterdayEntry.tasks.length) {
-      const allDone = yesterdayEntry.tasks.every(t=>t.done);
-      if (allDone) speak(jarvisPick('yesterdayComplete'));
-      else speak(jarvisPick('yesterdayMissed'));
-    }
-    speak(jarvisPick('missionReady'));
-
-    checkJarvisStreak(today);
-
-    try { sessionStorage.setItem('jarvis_greeted', today); } catch(e) {}
-  }
-
-  scheduleJarvisNightCheck(todayNum);
+function updateStats(){
+  const xp=totalXP(), level=getLevelFromXP(xp), rank=getRankInfo(xp);
+  document.getElementById('s-level').textContent=level; document.getElementById('s-rank').textContent=rank.name+'-Rank';
+  document.getElementById('s-xp').textContent=xp; document.getElementById('s-days').textContent=daysClear();
+  document.getElementById('xp-label').textContent=(xp%100)+' / 100'; document.getElementById('xp-bar').style.width=Math.min(xp%100,100)+'%';
+  const dx=dayEarned(data.currentDay)||0, dMax=Math.max(dayTotal(data.currentDay),1);
+  document.getElementById('day-xp-label').textContent=dx+' / '+dMax; document.getElementById('day-xp-bar').style.width=Math.min(Math.round((dx/dMax)*100),100)+'%';
+  document.getElementById('day-badge').textContent=dx+' / '+dMax+' XP';
+  const segs=document.getElementById('rank-segs'); segs.innerHTML='';
+  const range=rank.max===Infinity?500:rank.max-rank.min, filled=Math.min(Math.floor(((xp-rank.min)/range)*10),10);
+  for(let i=0;i<10;i++){const d=document.createElement('div');d.className='rank-seg'+(i<filled?' filled-'+rank.name.toLowerCase():'');segs.appendChild(d);}
+  if(level>prevLevel){document.getElementById('lvl-overlay').classList.add('show');playLevelUp();speak('Level up!');prevLevel=level;}
+  if(rank.name!==prevRank){document.getElementById('rank-up-name').textContent=rank.name+'-Rank'; document.getElementById('rank-up-name').style.color=rank.color; document.getElementById('rank-overlay').classList.add('show');playRankUp();speak('Rank ascension!');prevRank=rank.name;}
 }
+function dayTotal(n){const d=data.days[n];if(!d)return BASE_DAY_XP;const total=d.tasks.length;return total?total*Math.floor(dayPool(n)/total):dayPool(n);}
 
-function checkJarvisStreak(today) {
-  const sorted = Object.values(data.days)
-    .filter(d=>d.date && d.date<today)
-    .sort((a,b)=>a.date<b.date?1:-1);
-  let streak=0;
-  for(const d of sorted){
-    if(d.tasks.length && d.tasks.every(t=>t.done)) streak++;
-    else break;
-  }
-  if(streak===7) speak(jarvisPick('streak7'));
-  else if(streak===30) speak(jarvisPick('streak30'));
-  else if(streak===100) speak(jarvisPick('streak100'));
-}
-
-function scheduleJarvisNightCheck(todayNum) {
-  function check() {
-    const hour=new Date().getHours();
-    const t=todayStr();
-    let d=null;
-    Object.keys(data.days).forEach(k=>{ if(data.days[k].date===t) d=data.days[k]; });
-    if(hour>=22 && d && d.tasks.length && !d.tasks.every(t=>t.done)){
-      let alreadyWarned=false;
-      try { alreadyWarned = sessionStorage.getItem('jarvis_night_warned')===t; } catch(e){}
-      if(!alreadyWarned){
-        speak(jarvisPick('nightReminder'));
-        try { sessionStorage.setItem('jarvis_night_warned', t); } catch(e){}
-      }
-    }
-  }
-  check();
-  setInterval(check, 5*60*1000);
-}
-
-function save() {
-  try { localStorage.setItem(STORAGE_KEY,JSON.stringify(data)); } catch(e) {}
-  updateStats();
-  buildRibbon();
-}
-
-function saveGoal() { data.goal=document.getElementById('goal-input').value; save(); }
-function saveNotes() {
-  const d=data.currentDay;
-  if(!data.days[d]) return;
-  data.days[d].shipped=document.getElementById('shipped').value;
-  data.days[d].friction=document.getElementById('friction').value;
-  save();
-}
-
-// ─── MISSED DAY PROCESSING ─────────────────────────────────────────────────
-function checkAndProcessMissedDays() {
-  const today = todayStr();
-  const numDays = Object.keys(data.days).length;
-
-  for(let i=1; i<=numDays; i++) {
-    const day = data.days[i];
-    if(!day) continue;
-    if(day.poolXP===undefined) day.poolXP=BASE_DAY_XP;
-    if(day.date && day.date < today && !day.locked) {
-      day.locked = true;
-      archiveDay(i, day);
-      const incomplete = day.tasks.filter(t => !t.done);
-      if(incomplete.length > 0) {
-        day._pendingCarry = incomplete.map(t => ({
-          ...t,
-          id: Date.now() + Math.random(),
-          done: false,
-          carried: true,
-          carriedFromDay: i
-        }));
-      }
-      const earned = dayEarned(i);
-      const leftover = Math.max(day.poolXP - earned, 0);
-      day._pendingXPCarry = leftover;
-    }
-  }
-
-  let todayDayNum = null;
-  for(let i=1; i<=numDays; i++) {
-    if(data.days[i] && data.days[i].date === today) { todayDayNum = i; break; }
-  }
-
-  if(todayDayNum) {
-    const prevNum = todayDayNum - 1;
-    if(prevNum >= 1 && data.days[prevNum]) {
-      const prevDay = data.days[prevNum];
-      if(prevDay._pendingCarry) {
-        const carry = prevDay._pendingCarry;
-        carry.forEach(ct => {
-          if(!data.days[todayDayNum].tasks.find(t => t.name === ct.name && t.carried)) {
-            data.days[todayDayNum].tasks.unshift(ct);
-          }
-        });
-        delete prevDay._pendingCarry;
-      }
-      if(prevDay._pendingXPCarry) {
-        if(!data.days[todayDayNum]._xpCarriedIn){
-          data.days[todayDayNum].poolXP = BASE_DAY_XP + prevDay._pendingXPCarry;
-          data.days[todayDayNum]._xpCarriedIn = true;
-        }
-        delete prevDay._pendingXPCarry;
-      }
-    }
-  }
-
-  if(todayDayNum) data.currentDay = todayDayNum;
-}
-
-// ─── XP CALCULATION ────────────────────────────────────────────────────────
-function dayPool(n) {
-  const d = data.days[n]; if(!d) return BASE_DAY_XP;
-  return d.poolXP===undefined ? BASE_DAY_XP : d.poolXP;
-}
-
-function xpPerTask(n) {
-  const d = data.days[n]; if(!d) return 0;
-  const total = d.tasks.length;
-  const pool = dayPool(n);
-  return total ? Math.floor(pool / total) : 0;
-}
-
-function dayEarned(n) {
-  const d = data.days[n]; if(!d) return 0;
-  const perTask = xpPerTask(n);
-  return d.tasks.filter(t => t.done).length * perTask;
-}
-
-function dayTotal(n) {
-  const d = data.days[n]; if(!d) return BASE_DAY_XP;
-  const total = d.tasks.length;
-  const pool = dayPool(n);
-  return total ? total * Math.floor(pool / total) : pool;
-}
-
-function totalXP() {
-  let x = 0;
-  Object.keys(data.days).forEach(k => { x += dayEarned(parseInt(k)); });
-  return x;
-}
-
-function daysClear() {
-  let c = 0;
-  Object.keys(data.days).forEach(k => {
-    const d = data.days[k];
-    if(d && d.tasks.length && d.tasks.every(t => t.done)) c++;
-  });
-  return c;
-}
-
-// ─── STATS ─────────────────────────────────────────────────────────────────
-function updateStats() {
-  const xp=totalXP();
-  const dx=dayEarned(data.currentDay)||0;
-  const dMax=dayTotal(data.currentDay)||100;
-  const level=getLevelFromXP(xp);
-  const rank=getRankInfo(xp);
-  const levelXP=xp%100;
-  const rankXP=xp-rank.min;
-
-  const lvlEl=document.getElementById('s-level');
-  if(lvlEl.innerText!=String(level)){lvlEl.parentElement.classList.add('pop');setTimeout(()=>lvlEl.parentElement.classList.remove('pop'),400);}
-  lvlEl.innerText=level;
-  document.getElementById('s-rank').innerText=rank.name+'-Rank';
-  document.getElementById('s-xp').innerText=xp;
-  document.getElementById('s-days').innerText=daysClear();
-
-  document.getElementById('xp-label').innerText=levelXP+' / 100';
-  document.getElementById('xp-bar').style.width=Math.min(levelXP,100)+'%';
-  document.getElementById('day-xp-label').innerText=dx+' / '+dMax;
-  document.getElementById('day-xp-bar').style.width=Math.min(Math.round((dx/Math.max(dMax,1))*100),100)+'%';
-  document.getElementById('day-badge').innerText=dx+' / '+dMax+' XP';
-
-  const curDay=data.days[data.currentDay];
-  const carryRow=document.getElementById('carry-note-row');
-  if(curDay && carryRow){
-    const pool=dayPool(data.currentDay);
-    const extra=pool-BASE_DAY_XP;
-    if(extra>0){
-      carryRow.style.display='flex';
-      document.getElementById('carry-note-val').innerText='+'+extra+' XP (100 base + '+extra+' rolled in)';
-    } else {
-      carryRow.style.display='none';
-    }
-  }
-
-  const rankRange = rank.max === Infinity ? 500 : rank.max - rank.min;
-  document.getElementById('rank-xp-label').innerText=xp+' / '+(rank.max===Infinity?'∞':rank.max)+' XP';
-
-  const segs=document.getElementById('rank-segs');
-  segs.innerHTML='';
-  const totalSegs=10;
-  const filled=rank.max===Infinity?totalSegs:Math.min(Math.floor((rankXP/rankRange)*totalSegs),totalSegs);
-  for(let i=0;i<totalSegs;i++){
-    const seg=document.createElement('div');
-    seg.className='rank-seg'+(i<filled?' filled-'+rank.name.toLowerCase():'');
-    segs.appendChild(seg);
-  }
-
-  if(level>prevLevel) {
-    showLevelUp(level);
-    prevLevel=level;
-  }
-  if(rank.name!==prevRank && xp>0) {
-    showRankUp(rank);
-    prevRank=rank.name;
-  }
-}
-
-// ─── RIBBON ────────────────────────────────────────────────────────────────
-function buildRibbon() {
-  const ribbon=document.getElementById('ribbon');
-  ribbon.innerHTML='';
-  const today=todayStr();
-  const tomorrowStr=dateStrOffset(today,1);
-
-  const visibleNums=[];
-  Object.keys(data.days).map(Number).sort((a,b)=>a-b).forEach(n=>{
-    const d=data.days[n];
-    if(d&&(d.date===today||d.date===tomorrowStr)) visibleNums.push(n);
-  });
-
-  visibleNums.forEach(i=>{
-    const d=data.days[i]; if(!d) return;
-    const tasks=d.tasks;
-    const clear=tasks.length&&tasks.every(t=>t.done);
-    const earned=dayEarned(i);
-    const isActive=i===data.currentDay;
-    const hasCarried=tasks.some(t=>t.carried);
-    const isTomorrow=d.date===tomorrowStr;
-
-    const row=document.createElement('div');
-    let cls='day-row';
-    if(isActive) cls+=' active';
-    else if(clear) cls+=' complete';
-    else if(hasCarried) cls+=' carried';
-    row.className=cls;
-    row.onclick=()=>switchDay(i);
-
-    const tag=document.createElement('div');
-    tag.className='day-tag';
-    const dayLabel=document.createElement('span');
-    dayLabel.textContent='Day '+i+(isTomorrow?' ':'');
-    tag.appendChild(dayLabel);
-    if(d.date){
-      const dateEl=document.createElement('span');
-      dateEl.className='day-date';
-      dateEl.textContent=formatDate(d.date)+(isTomorrow?' ▸':'');
-      tag.appendChild(dateEl);
-    }
-
-    const inp=document.createElement('input');
-    inp.type='text'; inp.className='day-goal-input';
-    inp.placeholder="Day "+i+(isTomorrow?" (Tomorrow)":" (Today)")+"'s goal...";
-    inp.value=d.dayGoal||'';
-    inp.oninput=(e)=>{data.days[i].dayGoal=e.target.value;try{localStorage.setItem(STORAGE_KEY,JSON.stringify(data));}catch(e2){}};
-    inp.onclick=(ev)=>{ev.stopPropagation();switchDay(i);};
-
-    const status=document.createElement('div');
-    let sCls='day-status';
-    let sTxt;
-    const dMax=dayTotal(i);
-    if(clear){sCls+=' done';sTxt='✓ CLEAR';}
-    else if(isActive){sCls+=' active-s';sTxt=tasks.length?(earned+'/'+dMax+' XP'):'—';}
-    else if(hasCarried){sCls+=' carried';sTxt='↻ CARRY';}
-    else{sTxt=tasks.length?(earned+'/'+dMax+' XP'):'—';}
-    status.className=sCls; status.innerText=sTxt;
-
-    row.appendChild(tag); row.appendChild(inp); row.appendChild(status);
+function buildRibbon(){
+  const ribbon=document.getElementById('ribbon'); ribbon.innerHTML='';
+  const today=todayStr(); const nums=Object.keys(data.days).map(Number).sort((a,b)=>a-b);
+  nums.forEach(n=>{const d=data.days[n];if(!d||d.date<today||d.date===dateStrOffset(today,1)){}else return;
+    const clear=d.tasks.length&&d.tasks.every(t=>t.done);
+    const row=document.createElement('div'); row.className='day-row'+(n===data.currentDay?' active':clear?' complete':d.tasks.some(t=>t.carried)?' carried':'');
+    row.onclick=()=>switchDay(n);
+    row.innerHTML=`<div class="day-tag">Day ${n}<span class="day-date">${formatDate(d.date)}</span></div>
+      <input class="day-goal-input" value="${d.dayGoal||''}" placeholder="Day ${n} goal..." oninput="data.days[${n}].dayGoal=this.value;save()" onclick="event.stopPropagation();switchDay(${n})">
+      <div class="day-status${clear?' done':''}">${clear?'✓ CLEAR':dayEarned(n)+' / '+dayTotal(n)+' XP'}</div>`;
     ribbon.appendChild(row);
   });
 }
 
-// ─── SWITCH DAY ────────────────────────────────────────────────────────────
-function switchDay(n) {
-  const today=todayStr();
-  const d=data.days[n];
-  if(!d) return;
-
-  data.currentDay=n;
-  playSelect();
-  document.getElementById('quest-title').innerText='[ DAY '+n+' — QUEST LOG ]';
-
+function switchDay(n){
+  const d=data.days[n]; if(!d)return; data.currentDay=n; playSelect();
+  document.getElementById('quest-title').textContent='[ DAY '+n+' — QUEST LOG ]';
   const body=document.getElementById('quest-body');
-  if(d.locked&&d.date&&d.date<today) {
-    const earned=dayEarned(n);
-    const dMax=dayTotal(n);
-    body.innerHTML='<div class="lock-msg">⛔ QUEST LOG LOCKED<br><br>'+
-      'Day '+n+' ('+formatDate(d.date)+') has passed.<br>'+
-      'Incomplete quests were carried forward to the next day.<br><br>'+
-      '<span style="color:var(--muted);font-size:10px;">Earned: '+earned+' / '+dMax+' XP &nbsp;|&nbsp; Completed: '+d.tasks.filter(t=>t.done).length+' / '+d.tasks.length+' tasks</span></div>'+
-      '<ul class="task-list" id="task-list"></ul>'+
-      '<div class="notes-section"><div><div class="notes-label green">[ RESULT SHIPPED ]</div>'+
-      '<textarea class="sl-textarea" rows="3" id="shipped" readonly placeholder="—" oninput="saveNotes()"></textarea></div>'+
-      '<div><div class="notes-label red">[ DAMAGE TAKEN ]</div>'+
-      '<textarea class="sl-textarea" rows="3" id="friction" readonly placeholder="—" oninput="saveNotes()"></textarea></div></div>';
-    document.getElementById('shipped').value=d.shipped||'';
-    document.getElementById('friction').value=d.friction||'';
-    renderTasks();
-    updateStats();
-    buildRibbon();
-    return;
+  if(d.locked){
+    body.innerHTML=`<div class="lock-msg">⛔ QUEST LOG LOCKED</div>
+      <ul class="task-list" id="task-list"></ul>
+      <div class="notes-section">
+        <div class="note-panel shipped-panel"><div class="note-header"><span class="note-label">🚀 RESULT SHIPPED</span><span class="note-rating">${d.shippedRating||0}/10</span></div><div class="note-heat-bar"><div class="note-heat-fill shipped-fill" style="width:${(d.shippedRating||0)*10}%"></div></div><textarea class="note-textarea" readonly>${d.shippedNotes||''}</textarea></div>
+        <div class="note-panel damage-panel"><div class="note-header"><span class="note-label">💥 DAMAGE TAKEN</span><span class="note-rating">${d.damageRating||0}/10</span></div><div class="note-heat-bar"><div class="note-heat-fill damage-fill" style="width:${(d.damageRating||0)*10}%"></div></div><textarea class="note-textarea" readonly>${d.damageNotes||''}</textarea></div>
+      </div>`;
+    renderTasks(); updateStats(); return;
   }
-
-  body.innerHTML='<div class="add-row"><input class="sl-input" id="task-input" type="text" placeholder="Enter quest name..."><button class="sl-btn" onclick="addTask()">+ ADD</button></div>'+
-    '<ul class="task-list" id="task-list"></ul>'+
-    '<div class="notes-section"><div><div class="notes-label green">[ RESULT SHIPPED ]</div>'+
-    '<textarea class="sl-textarea" rows="3" id="shipped" placeholder="What did you finish today?" oninput="saveNotes()"></textarea></div>'+
-    '<div><div class="notes-label red">[ DAMAGE TAKEN ]</div>'+
-    '<textarea class="sl-textarea" rows="3" id="friction" placeholder="What wasted your time?" oninput="saveNotes()"></textarea></div></div>';
-  document.getElementById('shipped').value=d.shipped||'';
-  document.getElementById('friction').value=d.friction||'';
+  body.innerHTML=`
+    <div class="add-row"><input class="sl-input" id="task-input" type="text" placeholder="Enter quest name..."><button class="sl-btn" onclick="addTask()">+ ADD</button></div>
+    <ul class="task-list" id="task-list"></ul>
+    <div class="notes-section">
+      <div class="note-panel shipped-panel">
+        <div class="note-header"><span class="note-label">🚀 RESULT SHIPPED</span><span class="note-rating" id="shipped-rating-display">${d.shippedRating||0}/10</span></div>
+        <input type="range" min="0" max="10" value="${d.shippedRating||0}" class="note-slider" id="shipped-rating" oninput="updateNoteSlider('shipped')" onchange="saveNotes()">
+        <div class="note-heat-bar"><div class="note-heat-fill shipped-fill" id="shipped-heat-fill" style="width:${(d.shippedRating||0)*10}%"></div></div>
+        <textarea class="note-textarea" id="shipped-notes" placeholder="What did you finish today?" oninput="saveNotes()">${d.shippedNotes||''}</textarea>
+      </div>
+      <div class="note-panel damage-panel">
+        <div class="note-header"><span class="note-label">💥 DAMAGE TAKEN</span><span class="note-rating" id="damage-rating-display">${d.damageRating||0}/10</span></div>
+        <input type="range" min="0" max="10" value="${d.damageRating||0}" class="note-slider" id="damage-rating" oninput="updateNoteSlider('damage')" onchange="saveNotes()">
+        <div class="note-heat-bar"><div class="note-heat-fill damage-fill" id="damage-heat-fill" style="width:${(d.damageRating||0)*10}%"></div></div>
+        <textarea class="note-textarea" id="damage-notes" placeholder="What wasted your time?" oninput="saveNotes()">${d.damageNotes||''}</textarea>
+      </div>
+    </div>`;
   document.getElementById('task-input').addEventListener('keydown',e=>{if(e.key==='Enter')addTask();});
-  renderTasks();
-  updateStats();
-  buildRibbon();
+  renderTasks(); updateStats();
 }
-
-// ─── TASK CRUD ─────────────────────────────────────────────────────────────
-function addTask() {
-  const inp=document.getElementById('task-input');
-  if(!inp) return;
-  const name=inp.value.trim();
-  if(!name) return;
-  data.days[data.currentDay].tasks.push({id:Date.now(),name,done:false,carried:false});
-  inp.value='';
-  playAdd();
+function updateNoteSlider(type){const el=document.getElementById(type+'-rating'); document.getElementById(type+'-rating-display').textContent=el.value+'/10'; document.getElementById(type+'-heat-fill').style.width=(el.value*10)+'%';}
+function saveNotes(){
+  const d=data.days[data.currentDay]; if(!d)return;
+  d.shippedRating=parseInt(document.getElementById('shipped-rating')?.value)||0;
+  d.damageRating=parseInt(document.getElementById('damage-rating')?.value)||0;
+  d.shippedNotes=document.getElementById('shipped-notes')?.value||'';
+  d.damageNotes=document.getElementById('damage-notes')?.value||'';
   save();
-  renderTasks();
-  spawnParticles(inp);
-  speak(jarvisPick('questAdded'));
 }
 
-function toggle(id) {
-  const dayTasks=data.days[data.currentDay].tasks;
-  const t=dayTasks.find(t=>t.id===id);
-  if(t){
-    t.done=!t.done;
-    if(t.done) playCheck(); else playUncheck();
-  }
-  save();
-  renderTasks();
-  const cb=document.querySelector('input[onchange="toggle('+id+')"]');
-  if(cb&&t&&t.done) spawnParticles(cb);
-
-  if(t && t.done){
-    const allDone = dayTasks.length && dayTasks.every(x=>x.done);
-    if(allDone) speak(jarvisPick('allTasksComplete'));
-    else speak(jarvisPick('taskComplete'));
-  }
+function addTask(){
+  const inp=document.getElementById('task-input'); if(!inp)return; const name=inp.value.trim(); if(!name)return;
+  data.days[data.currentDay].tasks.push({id:Date.now(),name,done:false,carried:false,timer:{enabled:false,mode:'countdown',duration:25,targetTime:'12:00',startTime:null,elapsed:0,running:false,completed:false}});
+  inp.value=''; playAdd(); save(); renderTasks(); speak('Quest added.');
 }
+function toggle(id){const t=data.days[data.currentDay].tasks.find(t=>t.id===id);if(t){t.done=!t.done;playCheck();}save();renderTasks();}
+function del(id){data.days[data.currentDay].tasks=data.days[data.currentDay].tasks.filter(t=>t.id!==id);playDelete();save();renderTasks();}
 
-function del(id) {
-  data.days[data.currentDay].tasks=data.days[data.currentDay].tasks.filter(t=>t.id!==id);
-  playDelete();
-  save();
-  renderTasks();
+function getTaskById(id){return data.days[data.currentDay]?.tasks.find(t=>t.id===id);}
+function toggleTimerEnabled(id){const t=getTaskById(id);if(!t)return;if(!t.timer)t.timer={enabled:false,mode:'countdown',duration:25,targetTime:'12:00',startTime:null,elapsed:0,running:false,completed:false};t.timer.enabled=!t.timer.enabled;if(!t.timer.enabled){t.timer.running=false;t.timer.startTime=null;t.timer.completed=false;}save();renderTasks();}
+function setTimerMode(id,mode){const t=getTaskById(id);if(!t||!t.timer)return;t.timer.mode=mode;t.timer.running=false;t.timer.startTime=null;t.timer.completed=false;if(mode==='stopwatch')t.timer.elapsed=0;save();renderTasks();}
+function setTimerDuration(id,mins){const t=getTaskById(id);if(!t||!t.timer)return;t.timer.duration=Math.max(1,Math.min(480,parseInt(mins)||25));t.timer.running=false;t.timer.startTime=null;t.timer.completed=false;save();renderTasks();}
+function setTimerTargetTime(id,timeStr){const t=getTaskById(id);if(!t||!t.timer)return;t.timer.targetTime=timeStr;t.timer.running=false;t.timer.startTime=null;t.timer.completed=false;save();renderTasks();}
+function startTimer(id){const t=getTaskById(id);if(!t||!t.timer||!t.timer.enabled||t.timer.completed)return;t.timer.running=true;t.timer.startTime=Date.now();save();renderTasks();}
+function pauseTimer(id){const t=getTaskById(id);if(!t||!t.timer||!t.timer.running)return;if(t.timer.startTime){if(t.timer.mode==='stopwatch')t.timer.elapsed+=Date.now()-t.timer.startTime;else t.timer.elapsed+=Date.now()-t.timer.startTime;}t.timer.running=false;t.timer.startTime=null;save();renderTasks();}
+function resetTimer(id){const t=getTaskById(id);if(!t||!t.timer)return;t.timer.running=false;t.timer.startTime=null;t.timer.elapsed=0;t.timer.completed=false;save();renderTasks();}
+function getTimerRemainingMs(t){
+  if(!t||!t.timer||!t.timer.enabled)return null; if(t.timer.completed)return 0;
+  if(t.timer.mode==='time'){const[ h,m]=t.timer.targetTime.split(':').map(Number);const now=new Date(),target=new Date(now);target.setHours(h,m,0,0);const diff=target-now;return diff>0?diff:0;}
+  else if(t.timer.mode==='countdown'){const total=t.timer.duration*60*1000;let acc=t.timer.elapsed||0;if(t.timer.running&&t.timer.startTime)acc+=Date.now()-t.timer.startTime;return Math.max(total-acc,0);}
+  else{let elapsed=t.timer.elapsed||0;if(t.timer.running&&t.timer.startTime)elapsed+=Date.now()-t.timer.startTime;return elapsed;}
 }
-
-function renderTasks() {
-  const list=document.getElementById('task-list');
-  if(!list) return;
-  const d=data.days[data.currentDay];
-  if(!d){list.innerHTML='';return;}
-  const tasks=d.tasks;
-  const perTask=xpPerTask(data.currentDay);
-  list.innerHTML='';
-  if(!tasks.length) {
-    const li=document.createElement('li');
-    li.className='empty-msg';
-    li.innerHTML='— NO ACTIVE QUESTS —<br>ADD A QUEST TO BEGIN —';
-    list.appendChild(li);
-    return;
-  }
-  const totalPossible = tasks.length * perTask;
-  const noteEl = document.createElement('li');
-  noteEl.style.cssText='padding:6px 6px 10px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;';
-  noteEl.innerHTML=
-    '<span style="font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:1px;">'+tasks.length+' TASKS ∙ EQUAL SPLIT</span>'+
-    '<span style="font-family:var(--mono);font-size:9px;color:var(--purple);">'+perTask+' XP EACH ∙ '+totalPossible+' MAX</span>';
-  list.appendChild(noteEl);
-
-  tasks.forEach((t,i)=>{
-    const li=document.createElement('li');
-    li.className='task-row';
-    const carryBadge=t.carried?'<span class="carry-badge">↻ CARRIED</span>':'';
-    li.innerHTML=
-      '<span class="task-num">'+String(i+1).padStart(2,'0')+'</span>'+
-      '<input type="checkbox"'+(t.done?' checked':'')+(d.locked?' disabled':'')+' onchange="toggle('+t.id+')">'+
-      '<span class="task-name'+(t.done?' done':'')+(t.carried&&!t.done?' carried':'')+'">'+t.name+carryBadge+'</span>'+
-      '<span class="task-xp'+(t.done?' earned':'')+'">+'+ perTask+' XP</span>'+
-      (d.locked?'':'<button class="task-del" onclick="del('+t.id+')" aria-label="Remove">✕</button>');
-    list.appendChild(li);
+function formatTimerMs(ms){if(ms===null)return'--:--';const s=Math.floor(ms/1000),h=Math.floor(s/3600),m=Math.floor((s%3600)/60),sec=s%60;return h>0?`${h}:${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`:`${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;}
+function checkTimerCompletion(t){if(!t||!t.timer||!t.timer.enabled||t.timer.completed)return false;const rem=getTimerRemainingMs(t);if(rem!==null&&rem<=0){t.timer.completed=true;t.timer.running=false;t.timer.startTime=null;return true;}return false;}
+function startTimerEngine(){
+  if(timerInterval)clearInterval(timerInterval);
+  timerInterval=setInterval(()=>{
+    let completed=false;
+    Object.values(data.days).forEach(d=>{if(d&&d.tasks)d.tasks.forEach(t=>{if(checkTimerCompletion(t))completed=true;});});
+    if(completed){save();playTimerDone();showToast('⏰ Timer finished!');speak('Timer complete, Boss.');}
+    updateAllTimerDisplays();
+  },1000);
+}
+function updateAllTimerDisplays(){
+  document.querySelectorAll('.timer-display').forEach(el=>{
+    const id=parseInt(el.dataset.taskId); const t=getTaskById(id); if(!t||!t.timer||!t.timer.enabled)return;
+    const rem=getTimerRemainingMs(t); el.textContent=(t.timer.mode==='time'?'⏰ ':(t.timer.mode==='countdown'?'⏳ ':'⏱ '))+formatTimerMs(rem);
+    if(t.timer.completed)el.textContent='✅ DONE';
   });
 }
 
-// ─── OVERLAYS ──────────────────────────────────────────────────────────────
-function showLevelUp(level) {
-  playLevelUp();
-  document.getElementById('lvl-num').innerText=level;
-  document.getElementById('lvl-overlay').classList.add('show');
-  speak(jarvisPick('levelUp'));
-}
-function closeLvlOverlay() {
-  document.getElementById('lvl-overlay').classList.remove('show');
-  playSelect();
-}
-
-function showRankUp(rank) {
-  playRankUp();
-  const card=document.getElementById('rank-card');
-  const nameEl=document.getElementById('rank-up-name');
-  const descEl=document.getElementById('rank-up-desc');
-  const burstEl=document.getElementById('rank-burst');
-  const closeBtn=document.getElementById('rank-close-btn');
-  nameEl.innerText=rank.name+'-Rank';
-  nameEl.style.color=rank.color;
-  closeBtn.style.color=rank.color;
-  closeBtn.style.borderColor=rank.color;
-  descEl.innerText=rank.desc;
-  burstEl.innerText=rank.emoji;
-  document.getElementById('rank-overlay').classList.add('show');
-  speak(jarvisPick('rankUp'));
-}
-function closeRankOverlay() {
-  document.getElementById('rank-overlay').classList.remove('show');
-  playSelect();
-}
-
-// ─── TOAST ─────────────────────────────────────────────────────────────────
-let toastTimer;
-function showToast(msg) {
-  const t=document.getElementById('toast');
-  t.textContent=msg;
-  t.classList.add('show');
-  clearTimeout(toastTimer);
-  toastTimer=setTimeout(()=>t.classList.remove('show'),2200);
+function renderTasks(){
+  const list=document.getElementById('task-list'); if(!list)return; const d=data.days[data.currentDay]; if(!d)return;
+  const tasks=d.tasks, per=xpPerTask(data.currentDay); list.innerHTML='';
+  if(!tasks.length){list.innerHTML='<li class="empty-msg">— NO ACTIVE QUESTS —</li>';return;}
+  tasks.forEach((t,i)=>{
+    const li=document.createElement('li'); li.className='task-row';
+    const timerBtnCls=t.timer?.enabled?' active':'';
+    li.innerHTML=`
+      <span class="task-num">${String(i+1).padStart(2,'0')}</span>
+      <input type="checkbox" ${t.done?'checked':''} onchange="toggle(${t.id})">
+      <span class="task-name${t.done?' done':''}">${t.name}${t.carried?'<span class="carry-badge">↻ CARRIED</span>':''}</span>
+      <span class="task-xp${t.done?' earned':''}">+${per} XP</span>
+      <button class="timer-toggle-btn${timerBtnCls}" onclick="event.stopPropagation();toggleTimerEnabled(${t.id})">🕐</button>
+      <button class="task-del" onclick="del(${t.id})">✕</button>`;
+    list.appendChild(li);
+    if(t.timer?.enabled){
+      const sub=document.createElement('li'); sub.className='timer-sub-row';
+      const isCD=t.timer.mode==='countdown', isSW=t.timer.mode==='stopwatch', isTIME=t.timer.mode==='time';
+      sub.innerHTML=`
+        <button class="timer-mode-btn${isCD?' active-mode':''}" onclick="setTimerMode(${t.id},'countdown')">CD</button>
+        <button class="timer-mode-btn${isSW?' active-mode':''}" onclick="setTimerMode(${t.id},'stopwatch')">SW</button>
+        <button class="timer-mode-btn${isTIME?' active-mode':''}" onclick="setTimerMode(${t.id},'time')">⏰</button>
+        ${isCD?`<input class="timer-duration-input" type="number" value="${t.timer.duration}" min="1" max="480" onchange="setTimerDuration(${t.id},this.value)"> min`:''}
+        ${isTIME?`<input class="timer-time-input" type="time" value="${t.timer.targetTime||'12:00'}" onchange="setTimerTargetTime(${t.id},this.value)">`:''}
+        ${t.timer.completed?`<button class="timer-ctrl-btn" onclick="resetTimer(${t.id})">↺</button>`
+          :(isTIME?`<button class="timer-ctrl-btn" onclick="resetTimer(${t.id})">↺</button>`
+            :`${t.timer.running?`<button class="timer-ctrl-btn" onclick="pauseTimer(${t.id})">⏸</button>`:`<button class="timer-ctrl-btn start-btn" onclick="startTimer(${t.id})">▶</button>`}
+              <button class="timer-ctrl-btn" onclick="resetTimer(${t.id})">↺</button>`)}
+        <span class="timer-display" data-task-id="${t.id}">${t.timer.completed?'✅ DONE':(isTIME?'⏰ ':(isCD?'⏳ ':'⏱ '))+formatTimerMs(getTimerRemainingMs(t))}</span>`;
+      list.appendChild(sub);
+    }
+  });
 }
 
-// ─── PARTICLES ─────────────────────────────────────────────────────────────
-function spawnParticles(el) {
-  const rect=el.getBoundingClientRect();
-  const cx=rect.left+rect.width/2;
-  const cy=rect.top+rect.height/2;
-  const colors=['#00e5ff','#a855f7','#f59e0b','#10b981','#ef4444'];
-  for(let i=0;i<10;i++){
-    const p=document.createElement('div');
-    p.className='particle';
-    const angle=Math.random()*Math.PI*2;
-    const dist=40+Math.random()*60;
-    p.style.cssText=`left:${cx}px;top:${cy}px;background:${colors[Math.floor(Math.random()*colors.length)]};--tx:${Math.cos(angle)*dist}px;--ty:${Math.sin(angle)*dist}px;`;
-    document.body.appendChild(p);
-    setTimeout(()=>p.remove(),800);
-  }
-}
+function closeLvlOverlay(){document.getElementById('lvl-overlay').classList.remove('show');}
+function closeRankOverlay(){document.getElementById('rank-overlay').classList.remove('show');}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2200);}
 
-// ─── DATA STORE PAGE ────────────────────────────────────────────────────────
-let dsRange = 7;
+let dsRange=7;
+function openDataStore(){document.getElementById('datastore-page').classList.add('show');renderDataStore();}
+function closeDataStore(){document.getElementById('datastore-page').classList.remove('show');}
+function escapeHtml(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML;}
 
-function openDataStore() {
-  playSelect();
-  document.getElementById('datastore-page').classList.add('show');
-  // Push a history state so the phone's back button / swipe returns to main view
-  if (!dsOpen) {
-    history.pushState({page: 'datastore'}, '');
-    dsOpen = true;
-  }
-  renderDataStore();
-}
+function renderDataStore(){
+  const body=document.getElementById('ds-body'); const archive=data.archive||[];
+  if(!archive.length){body.innerHTML='<div class="ds-empty">— NO ARCHIVED DAYS YET —</div>';return;}
 
-function closeDataStore() {
-  playSelect();
-  document.getElementById('datastore-page').classList.remove('show');
-  // Clean up the history state we pushed — this keeps the back stack tidy
-  if (dsOpen) {
-    dsOpen = false;
-    history.back();
-  }
-}
-
-// ─── HANDLE PHONE BACK BUTTON / SWIPE GESTURE ──────────────────────────────
-window.addEventListener('popstate', function(e) {
-  // If the Data Store page is currently visible and the user pressed back,
-  // close it instead of navigating away from the app entirely.
-  const dsPage = document.getElementById('datastore-page');
-  if (dsOpen && dsPage && dsPage.classList.contains('show')) {
-    dsPage.classList.remove('show');
-    dsOpen = false;
-    // Prevent the browser from navigating further — we handled it.
-    // (The history entry was already popped by the back gesture.)
-  }
-});
-
-function dsGetEntries() {
-  const all = (data.archive||[]).slice();
-  if(dsRange==='all') return all;
-  return all.slice(Math.max(all.length-dsRange,0));
-}
-
-function renderDataStore() {
-  const body=document.getElementById('ds-body');
-  const archive=data.archive||[];
-
-  if(!archive.length) {
-    body.innerHTML='<div class="ds-empty">— NO ARCHIVED DAYS YET —<br>Complete your first day and it will<br>appear here automatically.<br><br>Come back after a few days to see<br>your stats and progress chart.</div>';
-    return;
-  }
-
-  const entries=dsGetEntries();
-  const totalEarned=archive.reduce((s,a)=>s+a.earnedXP,0);
-  const totalPossible=archive.reduce((s,a)=>s+a.poolXP,0);
-  const clearedCount=archive.filter(a=>a.cleared).length;
-  const avgPct=archive.length?Math.round((archive.reduce((s,a)=>s+(a.poolXP?a.earnedXP/a.poolXP:0),0)/archive.length)*100):0;
-
-  let html='';
-
-  html+='<div class="ds-summary-grid">'+
-    '<div class="ds-summary-box"><div class="ds-summary-val">'+archive.length+'</div><div class="ds-summary-lbl">Days Logged</div></div>'+
-    '<div class="ds-summary-box"><div class="ds-summary-val">'+clearedCount+'</div><div class="ds-summary-lbl">Full Clears</div></div>'+
-    '<div class="ds-summary-box"><div class="ds-summary-val">'+totalEarned+'</div><div class="ds-summary-lbl">Total XP Earned</div></div>'+
-    '<div class="ds-summary-box"><div class="ds-summary-val">'+avgPct+'%</div><div class="ds-summary-lbl">Avg Daily Clear</div></div>'+
-  '</div>';
+  const totalEarned=archive.reduce((s,a)=>s+a.earnedXP,0), cleared=archive.filter(a=>a.cleared).length;
+  let html=`
+    <div class="ds-summary-grid">
+      <div class="ds-summary-box"><div class="ds-summary-val">${archive.length}</div><div class="ds-summary-lbl">Days Logged</div></div>
+      <div class="ds-summary-box"><div class="ds-summary-val">${cleared}</div><div class="ds-summary-lbl">Full Clears</div></div>
+      <div class="ds-summary-box"><div class="ds-summary-val">${totalEarned}</div><div class="ds-summary-lbl">Total XP Earned</div></div>
+      <div class="ds-summary-box"><div class="ds-summary-val">${archive.length?Math.round((archive.reduce((s,a)=>s+(a.poolXP?a.earnedXP/a.poolXP:0),0)/archive.length)*100):0}%</div><div class="ds-summary-lbl">Avg Daily Clear</div></div>
+    </div>`;
 
   html+='<div class="ds-section-lbl">[ XP TREND ]</div>';
-  html+='<div class="ds-range-tabs">'+
-    '<div class="ds-range-tab'+(dsRange===7?' active':'')+'" onclick="setDsRange(7)">7 DAYS</div>'+
-    '<div class="ds-range-tab'+(dsRange===30?' active':'')+'" onclick="setDsRange(30)">30 DAYS</div>'+
-    '<div class="ds-range-tab'+(dsRange==='all'?' active':'')+'" onclick="setDsRange(\'all\')">ALL TIME</div>'+
-  '</div>';
-  html+='<div class="ds-chart-wrap"><canvas id="ds-canvas" style="width:100%;display:block;"></canvas>'+
-    '<div class="ds-chart-legend">'+
-      '<div class="ds-legend-item"><span class="ds-legend-dot" style="background:var(--gold);"></span>XP Earned</div>'+
-      '<div class="ds-legend-item"><span class="ds-legend-dot" style="background:var(--border);border:1px solid var(--muted);"></span>XP Possible</div>'+
-      '<div class="ds-legend-item"><span class="ds-legend-dot" style="background:var(--green);border-radius:50%;"></span>Full Clear</div>'+
-    '</div></div>';
+  html+='<div class="ds-range-tabs"><div class="ds-range-tab'+(dsRange===7?' active':'')+'" onclick="setDsRange(7)">7 DAYS</div><div class="ds-range-tab'+(dsRange===30?' active':'')+'" onclick="setDsRange(30)">30 DAYS</div><div class="ds-range-tab'+(dsRange==='all'?' active':'')+'" onclick="setDsRange(\'all\')">ALL TIME</div></div>';
+  html+='<div class="ds-chart-wrap"><canvas id="ds-canvas" style="width:100%;display:block;"></canvas></div>';
 
-  html+='<div class="ds-section-lbl">[ HUNTER HISTORY ]</div>';
-  if(!entries.length){
-    html+='<div class="ds-empty">No days in this range yet.</div>';
-  } else {
-    entries.slice().reverse().forEach(a=>{
-      const pct=a.poolXP?Math.round((a.earnedXP/a.poolXP)*100):0;
-      html+='<div class="ds-log-row'+(a.cleared?' cleared':'')+'">'+
-        '<div class="ds-log-date">'+formatDate(a.date)+'</div>'+
-        '<div class="ds-log-mid">'+
-          '<div class="ds-log-goal">'+(a.dayGoal?escapeHtml(a.dayGoal):'<span style=\"color:var(--muted);\">No goal set</span>')+'</div>'+
-          '<div class="ds-log-tasks">'+a.tasksDone+'/'+a.tasksTotal+' tasks'+(a.tasksCarriedIn?' ∙ '+a.tasksCarriedIn+' carried in':'')+(a.leftoverXP>0?' ∙ '+a.leftoverXP+' XP rolled to next day':'')+'</div>'+
-        '</div>'+
-        '<div class="ds-log-xp">'+a.earnedXP+'<span class="max"> / '+a.poolXP+'</span></div>'+
-        '<div class="ds-log-check">'+(a.cleared?'✅':(pct>0?'🟡':'⬜'))+'</div>'+
-      '</div>';
-    });
-  }
+  html+='<div class="ds-section-lbl">[ 15-DAY CYCLE TRACKING ]</div>';
+  html+=buildCycleTrackingSection();
 
   body.innerHTML=html;
-  drawDsChart(entries);
+  drawDsChart(dsGetEntries());
+  setTimeout(()=>{const sel=document.getElementById('cycle-select'); if(sel) drawCycleChart(sel.value);},10);
 }
 
-function setDsRange(r) {
-  dsRange=r;
-  playSelect();
-  renderDataStore();
+function buildCycleTrackingSection(){
+  const cycles=getAllCycles(); if(!cycles.length)return '<div class="ds-empty">No cycle data yet.</div>';
+  let options=''; cycles.forEach(c=>options+=`<option value="${c.id}" ${c.id==='current'?'selected':''}>${c.label}</option>`);
+  return `<div style="margin-bottom:12px;"><select id="cycle-select" onchange="drawCycleChart(this.value)" style="background:var(--card);border:1px solid var(--border);color:#fff;font-family:var(--mono);padding:6px 12px;border-radius:2px;">${options}</select></div>
+    <div class="ds-chart-wrap"><canvas id="cycle-canvas" style="width:100%;display:block;"></canvas></div>`;
 }
 
-function escapeHtml(s) {
-  const d=document.createElement('div');
-  d.textContent=s;
-  return d.innerHTML;
+function getAllCycles(){
+  const cycles=[]; if(data.cycleStartDate) cycles.push({id:'current',label:`Current Cycle (${toRoman(data.cycleNumber||1)})`,startDate:data.cycleStartDate,goal:data.cycleGoal||'No goal',number:data.cycleNumber||1});
+  (data.cyclesArchive||[]).forEach(c=>cycles.push({id:'archived_'+c.number,label:`Cycle ${toRoman(c.number)} (${formatDate(c.startDate)})`,startDate:c.startDate,goal:c.goal,number:c.number}));
+  return cycles;
 }
 
-function drawDsChart(entries) {
-  const canvas=document.getElementById('ds-canvas');
-  if(!canvas||!entries.length) return;
-  const wrap=canvas.parentElement;
-  const cssWidth=wrap.clientWidth-20;
-  const cssHeight=200;
-  const dpr=window.devicePixelRatio||1;
-  canvas.width=cssWidth*dpr;
-  canvas.height=cssHeight*dpr;
-  canvas.style.width=cssWidth+'px';
-  canvas.style.height=cssHeight+'px';
-  const ctx=canvas.getContext('2d');
-  ctx.scale(dpr,dpr);
-  ctx.clearRect(0,0,cssWidth,cssHeight);
-
-  const padL=34, padR=8, padT=14, padB=26;
-  const chartW=cssWidth-padL-padR;
-  const chartH=cssHeight-padT-padB;
-  const maxPool=Math.max(...entries.map(e=>e.poolXP),100);
-  const niceMax=Math.ceil(maxPool/50)*50;
-
-  ctx.strokeStyle='rgba(255,255,255,0.06)';
-  ctx.fillStyle='#4a5568';
-  ctx.font='9px monospace';
-  ctx.textAlign='right';
-  const gridSteps=4;
-  for(let i=0;i<=gridSteps;i++){
-    const y=padT+chartH-(chartH*(i/gridSteps));
-    const val=Math.round(niceMax*(i/gridSteps));
-    ctx.beginPath();
-    ctx.moveTo(padL,y);
-    ctx.lineTo(padL+chartW,y);
-    ctx.stroke();
-    ctx.fillText(val,padL-6,y+3);
-  }
-
-  const n=entries.length;
-  const slotW=chartW/n;
-  const barW=Math.max(Math.min(slotW*0.5,28),3);
-
-  entries.forEach((e,i)=>{
-    const cx=padL+slotW*i+slotW/2;
-    const poolH=(e.poolXP/niceMax)*chartH;
-    const earnH=(e.earnedXP/niceMax)*chartH;
-    const poolY=padT+chartH-poolH;
-    const earnY=padT+chartH-earnH;
-
-    ctx.strokeStyle='rgba(74,85,104,0.6)';
-    ctx.lineWidth=1;
-    ctx.strokeRect(cx-barW/2,poolY,barW,poolH);
-
-    ctx.fillStyle=e.cleared?'#10b981':'#f59e0b';
-    ctx.fillRect(cx-barW/2,earnY,barW,Math.max(earnH,1));
-
-    if(e.cleared){
-      ctx.beginPath();
-      ctx.arc(cx,poolY-8,3,0,Math.PI*2);
-      ctx.fillStyle='#10b981';
-      ctx.fill();
-    }
-
-    const labelEvery=n<=10?1:Math.ceil(n/8);
-    if(i%labelEvery===0 || i===n-1){
-      ctx.fillStyle='#4a5568';
-      ctx.font='8px monospace';
-      ctx.textAlign='center';
-      const [,,d]=e.date.split('-');
-      ctx.fillText(parseInt(d),cx,cssHeight-8);
-    }
-  });
+function drawCycleChart(cycleId){
+  const canvas=document.getElementById('cycle-canvas'); if(!canvas)return;
+  const cycles=getAllCycles(), cycle=cycles.find(c=>c.id===cycleId); if(!cycle)return;
+  const dayData=[]; for(let i=0;i<15;i++){const date=dateStrOffset(cycle.startDate,i); let earned=0; Object.values(data.days).forEach(d=>{if(d.date===date)earned=dayEarned(parseInt(Object.keys(data.days).find(k=>data.days[k]===d)));}); dayData.push({date,earned});}
+  const wrap=canvas.parentElement,cssWidth=wrap.clientWidth-20,cssHeight=220,dpr=window.devicePixelRatio||1;
+  canvas.width=cssWidth*dpr; canvas.height=cssHeight*dpr; canvas.style.width=cssWidth+'px'; canvas.style.height=cssHeight+'px';
+  const ctx=canvas.getContext('2d'); ctx.scale(dpr,dpr); ctx.clearRect(0,0,cssWidth,cssHeight);
+  const padL=34,padR=8,padT=20,padB=30,chartW=cssWidth-padL-padR,chartH=cssHeight-padT-padB,maxXP=Math.max(100,...dayData.map(d=>d.earned)),niceMax=Math.ceil(maxXP/50)*50;
+  ctx.strokeStyle='rgba(255,255,255,0.06)'; ctx.fillStyle='#4a5568'; ctx.font='9px monospace'; ctx.textAlign='right';
+  for(let i=0;i<=4;i++){const y=padT+chartH-(chartH*(i/4)),val=Math.round(niceMax*(i/4)); ctx.beginPath(); ctx.moveTo(padL,y); ctx.lineTo(padL+chartW,y); ctx.stroke(); ctx.fillText(val,padL-6,y+3);}
+  const targetY=padT+chartH-(chartH*(100/niceMax)); ctx.strokeStyle='#f59e0b'; ctx.lineWidth=1; ctx.setLineDash([4,4]); ctx.beginPath(); ctx.moveTo(padL,targetY); ctx.lineTo(padL+chartW,targetY); ctx.stroke(); ctx.setLineDash([]);
+  const barW=Math.max(Math.min(chartW/15*0.5,18),3); dayData.forEach((d,i)=>{const x=padL+(i+0.5)*(chartW/15)-barW/2,barH=(d.earned/niceMax)*chartH,y=padT+chartH-barH; ctx.fillStyle=d.earned>=100?'#10b981':'#f59e0b'; ctx.fillRect(x,y,barW,barH); ctx.fillStyle='#4a5568'; ctx.font='8px monospace'; ctx.textAlign='center'; ctx.fillText('D'+(i+1),padL+(i+0.5)*(chartW/15),cssHeight-10);});
 }
 
-// ─── BOOT SEQUENCE ─────────────────────────────────────────────────────────
-function boot() {
-  const bar=document.getElementById('boot-bar');
-  const status=document.getElementById('boot-status');
-  const msgs=[
-    'INITIALIZING NEURAL LINK...','LOADING HUNTER DATA...','CALIBRATING RANK ENGINE...',
-    'SYNCING QUEST LOGS...','AWAKENING PROTOCOLS ACTIVE...','SYSTEM READY ∙ ARISE HUNTER'
-  ];
-  let pct=0; let mi=0;
-  playBoot();
-  const iv=setInterval(()=>{
-    pct+=2+Math.random()*3;
-    if(pct>100) pct=100;
-    bar.style.width=pct+'%';
-    const newMi=Math.floor((pct/100)*msgs.length);
-    if(newMi!==mi&&newMi<msgs.length){mi=newMi;status.textContent=msgs[mi];}
-    if(pct>=100){
-      clearInterval(iv);
-      status.textContent=msgs[msgs.length-1];
-      speakSequence(['All systems online.', 'I am JARVIS.', 'Mission database synchronized.']);
-      setTimeout(()=>{
-        const bs=document.getElementById('boot-screen');
-        bs.style.transition='opacity 0.6s';
-        bs.style.opacity='0';
-        setTimeout(()=>{
-          bs.style.display='none';
-          const main=document.getElementById('main');
-          main.classList.add('visible');
-          load();
-        },600);
+function setDsRange(r){dsRange=r; renderDataStore();}
+function dsGetEntries(){const all=(data.archive||[]).slice(); return dsRange==='all'?all:all.slice(Math.max(all.length-dsRange,0));}
+function drawDsChart(entries){
+  const canvas=document.getElementById('ds-canvas'); if(!canvas||!entries.length)return;
+  const wrap=canvas.parentElement,cssWidth=wrap.clientWidth-20,cssHeight=200,dpr=window.devicePixelRatio||1;
+  canvas.width=cssWidth*dpr; canvas.height=cssHeight*dpr; canvas.style.width=cssWidth+'px'; canvas.style.height=cssHeight+'px';
+  const ctx=canvas.getContext('2d'); ctx.scale(dpr,dpr); ctx.clearRect(0,0,cssWidth,cssHeight);
+  const padL=34,padR=8,padT=14,padB=26,chartW=cssWidth-padL-padR,chartH=cssHeight-padT-padB,maxPool=Math.max(...entries.map(e=>e.poolXP),100),niceMax=Math.ceil(maxPool/50)*50;
+  ctx.strokeStyle='rgba(255,255,255,0.06)'; ctx.fillStyle='#4a5568'; ctx.font='9px monospace'; ctx.textAlign='right';
+  for(let i=0;i<=4;i++){const y=padT+chartH-(chartH*(i/4)),val=Math.round(niceMax*(i/4)); ctx.beginPath(); ctx.moveTo(padL,y); ctx.lineTo(padL+chartW,y); ctx.stroke(); ctx.fillText(val,padL-6,y+3);}
+  const n=entries.length,slotW=chartW/n,barW=Math.max(Math.min(slotW*0.5,28),3); entries.forEach((e,i)=>{const cx=padL+slotW*i+slotW/2,poolH=(e.poolXP/niceMax)*chartH,earnH=(e.earnedXP/niceMax)*chartH,poolY=padT+chartH-poolH,earnY=padT+chartH-earnH; ctx.strokeStyle='rgba(74,85,104,0.6)'; ctx.lineWidth=1; ctx.strokeRect(cx-barW/2,poolY,barW,poolH); ctx.fillStyle=e.cleared?'#10b981':'#f59e0b'; ctx.fillRect(cx-barW/2,earnY,barW,Math.max(earnH,1)); if(e.cleared){ctx.beginPath();ctx.arc(cx,poolY-8,3,0,Math.PI*2);ctx.fillStyle='#10b981';ctx.fill();}});
+  const labelEvery=n<=10?1:Math.ceil(n/8); for(let i=0;i<n;i++){if(i%labelEvery===0||i===n-1){ctx.fillStyle='#4a5568';ctx.font='8px monospace';ctx.textAlign='center';ctx.fillText(parseInt(entries[i].date.split('-')[2]),padL+slotW*i+slotW/2,cssHeight-8);}}
+}
+
+function boot(){
+  const bar=document.getElementById('boot-bar'), status=document.getElementById('boot-status');
+  const msgs=['INITIALIZING NEURAL LINK...','LOADING HUNTER DATA...','CALIBRATING RANK ENGINE...','SYNCING QUEST LOGS...','ACTIVATING TIMER MODULE...','AWAKENING PROTOCOLS ACTIVE...','SYSTEM READY ∙ ARISE HUNTER'];
+  let pct=0,mi=0; playBoot();
+  const iv=setInterval(()=>{pct+=2+Math.random()*3;if(pct>100)pct=100;bar.style.width=pct+'%'; const newMi=Math.floor((pct/100)*msgs.length);if(newMi!==mi){mi=newMi;status.textContent=msgs[mi];}
+    if(pct>=100){clearInterval(iv);status.textContent=msgs[msgs.length-1];
+      setTimeout(()=>{const bs=document.getElementById('boot-screen');bs.style.transition='opacity 0.6s';bs.style.opacity='0';
+        setTimeout(()=>{bs.style.display='none';document.getElementById('main').classList.add('visible');load();},600);
       },500);
-    }
-  },40);
+  }},40);
 }
-
-// ─── CLOCK TICK ────────────────────────────────────────────────────────────
-setInterval(updateClock, 1000);
-updateClock();
-
-let dsResizeTimer;
-window.addEventListener('resize', ()=>{
-  clearTimeout(dsResizeTimer);
-  dsResizeTimer=setTimeout(()=>{
-    if(document.getElementById('datastore-page').classList.contains('show')){
-      drawDsChart(dsGetEntries());
-    }
-  },150);
-});
-
-// ─── START ─────────────────────────────────────────────────────────────────
-window.addEventListener('load', boot);
+window.addEventListener('load',boot);
 </script>
 </body>
 </html>
