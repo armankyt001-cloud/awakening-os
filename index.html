@@ -9,7 +9,6 @@
 <meta name="theme-color" content="#07080f">
 <title>Arman's Awakening OS</title>
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
-<link rel="manifest" href="manifest.json">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
 :root{
@@ -199,7 +198,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;background:rad
 
 <div id="boot-screen">
   <div class="boot-logo">AWAKENING OS</div>
-  <div class="boot-sub">ARMAN'S PROTOCOL ∙ v5.0</div>
+  <div class="boot-sub">ARMAN'S PROTOCOL ∙ v5.1</div>
   <div class="boot-bar-wrap"><div class="boot-bar" id="boot-bar"></div></div>
   <div class="boot-status" id="boot-status">INITIALIZING...</div>
 </div>
@@ -303,21 +302,360 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;background:rad
     <div id="quest-body"></div>
   </div>
 
-  <div class="sys-footer">SYSTEM ∙ v5.0 ∙ ARMAN'S PROTOCOL ∙ FULLY LOCAL</div>
+  <div class="sys-footer">SYSTEM ∙ v5.1 ∙ ARMAN'S PROTOCOL ∙ FULLY LOCAL</div>
 </div>
 
 <script>
-// ─── FULL JAVASCRIPT (same as previous full version) ──────────────────────
-// Paste the entire JavaScript from the previous complete answer here.
-// It includes the timer engine, cycle logic, data store, etc.
-// (Due to length, I'm omitting the repetition; just copy from the previous full code.)
-</script>
+const STORAGE_KEY = 'sl_arman_v5';
+let data = { goal:'', currentDay:1, days:{}, startDate:null, cycleGoal:'', cycleStartDate:null, cycleNumber:1, cyclesArchive:[] };
+let prevLevel = 1, prevRank = 'E', audioCtx = null, timerInterval = null;
 
-<!-- Service worker registration -->
-<script>
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => navigator.serviceWorker.register('sw.js'));
+function getAudio() { if(!audioCtx) try{audioCtx=new (window.AudioContext||window.webkitAudioContext)}catch(e){} return audioCtx; }
+function beep(f,t,d,v,delay=0){const ctx=getAudio();if(!ctx)return;const o=ctx.createOscillator(),g=ctx.createGain();o.connect(g);g.connect(ctx.destination);o.type=t;o.frequency.setValueAtTime(f,ctx.currentTime+delay);g.gain.setValueAtTime(v,ctx.currentTime+delay);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+delay+d);o.start(ctx.currentTime+delay);o.stop(ctx.currentTime+delay+d);}
+function playSelect(){beep(660,'square',0.08,0.1);beep(880,'square',0.08,0.08,0.08);}
+function playCheck(){beep(440,'sine',0.05,0.12);beep(660,'sine',0.1,0.12,0.06);beep(880,'sine',0.15,0.1,0.13);}
+function playAdd(){beep(550,'square',0.06,0.1);beep(700,'square',0.08,0.08,0.07);}
+function playTimerDone(){beep(880,'sine',0.12,0.18);beep(1100,'sine',0.12,0.15,0.12);beep(1320,'sine',0.2,0.15,0.25);}
+function playBoot(){[220,330,440,550,660].forEach((f,i)=>beep(f,'square',0.15,0.1,i*0.12));}
+
+let jarvisOn = true;
+function toggleJarvis(){jarvisOn=!jarvisOn; document.getElementById('jarvis-toggle').classList.toggle('on',jarvisOn); playSelect();}
+function speak(t){if(jarvisOn&&'speechSynthesis' in window){const u=new SpeechSynthesisUtterance(t);u.rate=0.95;u.pitch=0.75;speechSynthesis.speak(u);}}
+
+function todayStr(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function formatDate(s){const m=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];const[,,d]=s.split('-');return m[parseInt(s.split('-')[1])-1]+' '+parseInt(d);}
+function updateClock(){const n=new Date();document.getElementById('live-date').textContent=['SUN','MON','TUE','WED','THU','FRI','SAT'][n.getDay()]+' '+['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'][n.getMonth()]+' '+n.getDate()+' '+n.getFullYear()+' ∙ '+String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0')+':'+String(n.getSeconds()).padStart(2,'0');}
+setInterval(updateClock,1000); updateClock();
+
+const BASE_DAY_XP = 100;
+function blank(date){return{tasks:[],shippedRating:0,shippedNotes:'',damageRating:0,damageNotes:'',dayGoal:'',date:date||null,locked:false,poolXP:BASE_DAY_XP};}
+function dateStrOffset(base,offset){const d=new Date(base+'T00:00:00');d.setDate(d.getDate()+offset);return d.toISOString().split('T')[0];}
+
+function toRoman(num){if(num<1)return'';const v=[1000,900,500,400,100,90,50,40,10,9,5,4,1],r=['M','CM','D','CD','C','XC','L','XL','X','IX','V','IV','I'];let res='';for(let i=0;i<v.length;i++){while(num>=v[i]){res+=r[i];num-=v[i];}}return res;}
+
+// FIXED: +15 days so first day shows 15 days left
+function getCycleEndDate(s){const d=new Date(s+'T00:00:00');d.setDate(d.getDate()+15);return d.toISOString().split('T')[0];}
+function getCycleDaysRemaining(){if(!data.cycleStartDate)return 0;const end=getCycleEndDate(data.cycleStartDate);return Math.max(Math.ceil((new Date(end+'T00:00:00')-new Date(todayStr()+'T00:00:00'))/(1000*60*60*24)),0);}
+function isCycleExpired(){return getCycleDaysRemaining()<=0;}
+function saveCycleGoal(){data.cycleGoal=document.getElementById('cycle-input').value;save();}
+function updateCycleUI(){
+  const inp=document.getElementById('cycle-input'), dates=document.getElementById('cycle-dates'), count=document.getElementById('cycle-countdown'),
+        fill=document.getElementById('cycle-progress-fill'), btn=document.getElementById('cycle-reset-btn'), num=document.getElementById('cycle-number');
+  if(inp)inp.value=data.cycleGoal||'';
+  if(!data.cycleStartDate){dates.textContent='No active cycle';count.textContent='—';fill.style.width='0%';btn.style.display='none';num.textContent='Cycle #'+(data.cycleNumber||1);return;}
+  const end=getCycleEndDate(data.cycleStartDate), rem=getCycleDaysRemaining(), elapsed=getCycleElapsedDays();
+  dates.textContent=formatDate(data.cycleStartDate)+' → '+formatDate(end);
+  if(rem<=0){count.textContent='CYCLE COMPLETE';count.classList.add('expired');}else{count.textContent=rem+' DAY'+(rem!==1?'S':'')+' LEFT';count.classList.remove('expired');}
+  fill.style.width=Math.min(Math.round((elapsed/15)*100),100)+'%';
+  btn.style.display=rem<=0?'inline-block':'none'; num.textContent='Cycle #'+(data.cycleNumber||1);
 }
+function getCycleElapsedDays(){if(!data.cycleStartDate)return 0;const s=new Date(data.cycleStartDate+'T00:00:00'),t=new Date(todayStr()+'T00:00:00');return Math.max(0,Math.min(Math.floor((t-s)/(1000*60*60*24)),15));}
+function triggerCycleReset(){if(isCycleExpired()){document.getElementById('cycle-overlay-input').value='';document.getElementById('cycle-overlay').classList.add('show');}}
+function confirmCycleGoal(){const v=document.getElementById('cycle-overlay-input').value.trim();if(!v)return;data.cycleGoal=v;data.cycleStartDate=todayStr();if(isCycleExpired()||!data.cycleNumber){if(!data.cyclesArchive)data.cyclesArchive=[];if(data.cycleGoal&&data.cycleStartDate)data.cyclesArchive.push({goal:data.cycleGoal,startDate:data.cycleStartDate,number:data.cycleNumber||1});data.cycleNumber=(data.cycleNumber||1)+1;}save();updateAllCycleDisplays();document.getElementById('cycle-overlay').classList.remove('show');playAdd();speak('New 15-day cycle initiated.');}
+function initCycle(){if(!data.cycleStartDate){data.cycleStartDate=todayStr();data.cycleNumber=1;save();} if(isCycleExpired()&&data.cycleGoal){triggerCycleReset();} updateAllCycleDisplays();}
+
+function updateFinalObjectivePanel(){
+  const container=document.getElementById('goal-content'); if(!container)return;
+  if(data.cycleGoal && data.cycleStartDate){
+    const status=isCycleExpired()?'COMPLETED':'PENDING', cls=status==='COMPLETED'?'completed':'pending';
+    container.innerHTML=`<div class="goal-display"><strong>${toRoman(data.cycleNumber||1)}. ${escapeHtml(data.cycleGoal)}</strong><span class="goal-status ${cls}">${status}</span></div>`;
+  }else{
+    container.innerHTML=`<input class="goal-input" id="goal-input" type="text" placeholder="Enter your conquest objective..." oninput="saveGoal()" value="${data.goal||''}">`;
+  }
+}
+function updateAllCycleDisplays(){updateCycleUI(); updateFinalObjectivePanel();}
+
+function save(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(data));}catch(e){} updateStats(); buildRibbon(); updateAllCycleDisplays();}
+function saveGoal(){data.goal=document.getElementById('goal-input')?.value||'';save();}
+
+function archiveDay(n,day){
+  if(!data.archive)data.archive=[];
+  if(data.archive.find(a=>a.date===day.date))return;
+  const pool=day.poolXP||BASE_DAY_XP, earned=dayEarned(n), total=day.tasks.length, done=day.tasks.filter(t=>t.done).length;
+  data.archive.push({date:day.date,dayNum:n,dayGoal:day.dayGoal||'',shippedRating:day.shippedRating||0,shippedNotes:day.shippedNotes||'',damageRating:day.damageRating||0,damageNotes:day.damageNotes||'',poolXP:pool,earnedXP:earned,tasksTotal:total,tasksDone:done,taskDetails:day.tasks.map(t=>({name:t.name,done:t.done,carried:t.carried||false}))});
+  data.archive.sort((a,b)=>a.date<b.date?-1:1);
+}
+
+function checkAndProcessMissedDays(){
+  const today=todayStr(); const nums=Object.keys(data.days).map(Number);
+  for(let n of nums){
+    const day=data.days[n]; if(!day||day.date>=today||day.locked)continue;
+    day.locked=true; archiveDay(n,day);
+    const inc=day.tasks.filter(t=>!t.done);
+    if(inc.length) day._pendingCarry=inc.map(t=>({...t,id:Date.now()+Math.random(),done:false,carried:true,timer:t.timer?{...t.timer,running:false,startTime:null}:undefined}));
+    const earned=dayEarned(n), leftover=Math.max((day.poolXP||BASE_DAY_XP)-earned,0);
+    day._pendingXPCarry=leftover;
+  }
+  let todayNum=null; for(let n of nums) if(data.days[n].date===today){todayNum=n;break;}
+  if(todayNum){
+    const prev=data.days[todayNum-1];
+    if(prev&&prev._pendingCarry){prev._pendingCarry.forEach(ct=>{if(!data.days[todayNum].tasks.find(t=>t.name===ct.name&&t.carried))data.days[todayNum].tasks.unshift(ct);}); delete prev._pendingCarry;}
+    if(prev&&prev._pendingXPCarry){if(!data.days[todayNum]._xpCarriedIn){data.days[todayNum].poolXP=BASE_DAY_XP+prev._pendingXPCarry; data.days[todayNum]._xpCarriedIn=true;} delete prev._pendingXPCarry;}
+  }
+}
+
+function load(){
+  try{const s=localStorage.getItem(STORAGE_KEY);if(s)data=JSON.parse(s);}catch(e){}
+  if(!data.days)data.days={}; if(!data.archive)data.archive=[]; if(!data.cyclesArchive)data.cyclesArchive=[];
+  if(!data.startDate)data.startDate=todayStr();
+  const today=todayStr(), tomorrow=dateStrOffset(today,1);
+  let todayNum=null; const nums=Object.keys(data.days).map(Number).sort((a,b)=>a-b);
+  for(let n of nums){if(data.days[n].date===today)todayNum=n;}
+  if(!todayNum){ const next=(nums.length?Math.max(...nums):0)+1; data.days[next]=blank(today); todayNum=next; }
+  if(!Object.values(data.days).some(d=>d.date===tomorrow)){ const next=Math.max(...Object.keys(data.days).map(Number))+1; data.days[next]=blank(tomorrow); }
+  checkAndProcessMissedDays();
+  initCycle();
+  buildRibbon();
+  switchDay(todayNum);
+  prevLevel=getLevelFromXP(totalXP()); prevRank=getRankInfo(totalXP()).name;
+  document.getElementById('jarvis-toggle').classList.toggle('on',jarvisOn);
+  startTimerEngine();
+}
+
+function dayPool(n){return (data.days[n]?.poolXP)||BASE_DAY_XP;}
+function xpPerTask(n){const d=data.days[n];if(!d)return 0;const t=d.tasks.length;return t?Math.floor(dayPool(n)/t):0;}
+function dayEarned(n){const d=data.days[n];if(!d)return 0;return d.tasks.filter(t=>t.done).length*xpPerTask(n);}
+function totalXP(){return Object.keys(data.days).reduce((s,k)=>s+dayEarned(parseInt(k)),0);}
+function getLevelFromXP(xp){return Math.floor(xp/100)+1;}
+const RANKS=[{name:'E',min:0,max:500,color:'#6b7280'},{name:'D',min:500,max:1000,color:'#10b981'},{name:'C',min:1000,max:1500,color:'#3b82f6'},{name:'B',min:1500,max:2000,color:'#a855f7'},{name:'A',min:2000,max:2500,color:'#f59e0b'},{name:'S',min:2500,max:Infinity,color:'#ef4444'}];
+function getRankInfo(xp){for(let i=RANKS.length-1;i>=0;i--)if(xp>=RANKS[i].min)return RANKS[i];return RANKS[0];}
+function daysClear(){return Object.values(data.days).filter(d=>d.tasks.length&&d.tasks.every(t=>t.done)).length;}
+
+function updateStats(){
+  const xp=totalXP(), level=getLevelFromXP(xp), rank=getRankInfo(xp);
+  document.getElementById('s-level').textContent=level; document.getElementById('s-rank').textContent=rank.name+'-Rank';
+  document.getElementById('s-xp').textContent=xp; document.getElementById('s-days').textContent=daysClear();
+  document.getElementById('xp-label').textContent=(xp%100)+' / 100'; document.getElementById('xp-bar').style.width=Math.min(xp%100,100)+'%';
+  const dx=dayEarned(data.currentDay)||0, dMax=Math.max(dayTotal(data.currentDay),1);
+  document.getElementById('day-xp-label').textContent=dx+' / '+dMax; document.getElementById('day-xp-bar').style.width=Math.min(Math.round((dx/dMax)*100),100)+'%';
+  document.getElementById('day-badge').textContent=dx+' / '+dMax+' XP';
+  const segs=document.getElementById('rank-segs'); segs.innerHTML='';
+  const range=rank.max===Infinity?500:rank.max-rank.min, filled=Math.min(Math.floor(((xp-rank.min)/range)*10),10);
+  for(let i=0;i<10;i++){const d=document.createElement('div');d.className='rank-seg'+(i<filled?' filled-'+rank.name.toLowerCase():'');segs.appendChild(d);}
+  if(level>prevLevel){document.getElementById('lvl-overlay').classList.add('show');playLevelUp();speak('Level up!');prevLevel=level;}
+  if(rank.name!==prevRank){document.getElementById('rank-up-name').textContent=rank.name+'-Rank'; document.getElementById('rank-up-name').style.color=rank.color; document.getElementById('rank-overlay').classList.add('show');playRankUp();speak('Rank ascension!');prevRank=rank.name;}
+}
+function dayTotal(n){const d=data.days[n];if(!d)return BASE_DAY_XP;const total=d.tasks.length;return total?total*Math.floor(dayPool(n)/total):dayPool(n);}
+
+function buildRibbon(){
+  const ribbon=document.getElementById('ribbon'); ribbon.innerHTML='';
+  const today=todayStr(); const nums=Object.keys(data.days).map(Number).sort((a,b)=>a-b);
+  nums.forEach(n=>{const d=data.days[n];if(!d||d.date<today||d.date===dateStrOffset(today,1)){}else return;
+    const clear=d.tasks.length&&d.tasks.every(t=>t.done);
+    const row=document.createElement('div'); row.className='day-row'+(n===data.currentDay?' active':clear?' complete':d.tasks.some(t=>t.carried)?' carried':'');
+    row.onclick=()=>switchDay(n);
+    row.innerHTML=`<div class="day-tag">Day ${n}<span class="day-date">${formatDate(d.date)}</span></div>
+      <input class="day-goal-input" value="${d.dayGoal||''}" placeholder="Day ${n} goal..." oninput="data.days[${n}].dayGoal=this.value;save()" onclick="event.stopPropagation();switchDay(${n})">
+      <div class="day-status${clear?' done':''}">${clear?'✓ CLEAR':dayEarned(n)+' / '+dayTotal(n)+' XP'}</div>`;
+    ribbon.appendChild(row);
+  });
+}
+
+function switchDay(n){
+  const d=data.days[n]; if(!d)return; data.currentDay=n; playSelect();
+  document.getElementById('quest-title').textContent='[ DAY '+n+' — QUEST LOG ]';
+  const body=document.getElementById('quest-body');
+  if(d.locked){
+    body.innerHTML=`<div class="lock-msg">⛔ QUEST LOG LOCKED</div>
+      <ul class="task-list" id="task-list"></ul>
+      <div class="notes-section">
+        <div class="note-panel shipped-panel"><div class="note-header"><span class="note-label">🚀 RESULT SHIPPED</span><span class="note-rating">${d.shippedRating||0}/10</span></div><div class="note-heat-bar"><div class="note-heat-fill shipped-fill" style="width:${(d.shippedRating||0)*10}%"></div></div><textarea class="note-textarea" readonly>${d.shippedNotes||''}</textarea></div>
+        <div class="note-panel damage-panel"><div class="note-header"><span class="note-label">💥 DAMAGE TAKEN</span><span class="note-rating">${d.damageRating||0}/10</span></div><div class="note-heat-bar"><div class="note-heat-fill damage-fill" style="width:${(d.damageRating||0)*10}%"></div></div><textarea class="note-textarea" readonly>${d.damageNotes||''}</textarea></div>
+      </div>`;
+    renderTasks(); updateStats(); return;
+  }
+  body.innerHTML=`
+    <div class="add-row"><input class="sl-input" id="task-input" type="text" placeholder="Enter quest name..."><button class="sl-btn" onclick="addTask()">+ ADD</button></div>
+    <ul class="task-list" id="task-list"></ul>
+    <div class="notes-section">
+      <div class="note-panel shipped-panel">
+        <div class="note-header"><span class="note-label">🚀 RESULT SHIPPED</span><span class="note-rating" id="shipped-rating-display">${d.shippedRating||0}/10</span></div>
+        <input type="range" min="0" max="10" value="${d.shippedRating||0}" class="note-slider" id="shipped-rating" oninput="updateNoteSlider('shipped')" onchange="saveNotes()">
+        <div class="note-heat-bar"><div class="note-heat-fill shipped-fill" id="shipped-heat-fill" style="width:${(d.shippedRating||0)*10}%"></div></div>
+        <textarea class="note-textarea" id="shipped-notes" placeholder="What did you finish today?" oninput="saveNotes()">${d.shippedNotes||''}</textarea>
+      </div>
+      <div class="note-panel damage-panel">
+        <div class="note-header"><span class="note-label">💥 DAMAGE TAKEN</span><span class="note-rating" id="damage-rating-display">${d.damageRating||0}/10</span></div>
+        <input type="range" min="0" max="10" value="${d.damageRating||0}" class="note-slider" id="damage-rating" oninput="updateNoteSlider('damage')" onchange="saveNotes()">
+        <div class="note-heat-bar"><div class="note-heat-fill damage-fill" id="damage-heat-fill" style="width:${(d.damageRating||0)*10}%"></div></div>
+        <textarea class="note-textarea" id="damage-notes" placeholder="What wasted your time?" oninput="saveNotes()">${d.damageNotes||''}</textarea>
+      </div>
+    </div>`;
+  document.getElementById('task-input').addEventListener('keydown',e=>{if(e.key==='Enter')addTask();});
+  renderTasks(); updateStats();
+}
+function updateNoteSlider(type){const el=document.getElementById(type+'-rating'); document.getElementById(type+'-rating-display').textContent=el.value+'/10'; document.getElementById(type+'-heat-fill').style.width=(el.value*10)+'%';}
+function saveNotes(){
+  const d=data.days[data.currentDay]; if(!d)return;
+  d.shippedRating=parseInt(document.getElementById('shipped-rating')?.value)||0;
+  d.damageRating=parseInt(document.getElementById('damage-rating')?.value)||0;
+  d.shippedNotes=document.getElementById('shipped-notes')?.value||'';
+  d.damageNotes=document.getElementById('damage-notes')?.value||'';
+  save();
+}
+
+function addTask(){
+  const inp=document.getElementById('task-input'); if(!inp)return; const name=inp.value.trim(); if(!name)return;
+  data.days[data.currentDay].tasks.push({id:Date.now(),name,done:false,carried:false,timer:{enabled:false,mode:'countdown',duration:25,targetTime:'12:00',startTime:null,elapsed:0,running:false,completed:false}});
+  inp.value=''; playAdd(); save(); renderTasks(); speak('Quest added.');
+}
+function toggle(id){const t=data.days[data.currentDay].tasks.find(t=>t.id===id);if(t){t.done=!t.done;playCheck();}save();renderTasks();}
+function del(id){data.days[data.currentDay].tasks=data.days[data.currentDay].tasks.filter(t=>t.id!==id);playDelete();save();renderTasks();}
+
+function getTaskById(id){return data.days[data.currentDay]?.tasks.find(t=>t.id===id);}
+function toggleTimerEnabled(id){const t=getTaskById(id);if(!t)return;if(!t.timer)t.timer={enabled:false,mode:'countdown',duration:25,targetTime:'12:00',startTime:null,elapsed:0,running:false,completed:false};t.timer.enabled=!t.timer.enabled;if(!t.timer.enabled){t.timer.running=false;t.timer.startTime=null;t.timer.completed=false;}save();renderTasks();}
+function setTimerMode(id,mode){const t=getTaskById(id);if(!t||!t.timer)return;t.timer.mode=mode;t.timer.running=false;t.timer.startTime=null;t.timer.completed=false;if(mode==='stopwatch')t.timer.elapsed=0;save();renderTasks();}
+function setTimerDuration(id,mins){const t=getTaskById(id);if(!t||!t.timer)return;t.timer.duration=Math.max(1,Math.min(480,parseInt(mins)||25));t.timer.running=false;t.timer.startTime=null;t.timer.completed=false;save();renderTasks();}
+function setTimerTargetTime(id,timeStr){const t=getTaskById(id);if(!t||!t.timer)return;t.timer.targetTime=timeStr;t.timer.running=false;t.timer.startTime=null;t.timer.completed=false;save();renderTasks();}
+function startTimer(id){const t=getTaskById(id);if(!t||!t.timer||!t.timer.enabled||t.timer.completed)return;t.timer.running=true;t.timer.startTime=Date.now();save();renderTasks();}
+function pauseTimer(id){const t=getTaskById(id);if(!t||!t.timer||!t.timer.running)return;if(t.timer.startTime){if(t.timer.mode==='stopwatch')t.timer.elapsed+=Date.now()-t.timer.startTime;else t.timer.elapsed+=Date.now()-t.timer.startTime;}t.timer.running=false;t.timer.startTime=null;save();renderTasks();}
+function resetTimer(id){const t=getTaskById(id);if(!t||!t.timer)return;t.timer.running=false;t.timer.startTime=null;t.timer.elapsed=0;t.timer.completed=false;save();renderTasks();}
+function getTimerRemainingMs(t){
+  if(!t||!t.timer||!t.timer.enabled)return null; if(t.timer.completed)return 0;
+  if(t.timer.mode==='time'){const[ h,m]=t.timer.targetTime.split(':').map(Number);const now=new Date(),target=new Date(now);target.setHours(h,m,0,0);const diff=target-now;return diff>0?diff:0;}
+  else if(t.timer.mode==='countdown'){const total=t.timer.duration*60*1000;let acc=t.timer.elapsed||0;if(t.timer.running&&t.timer.startTime)acc+=Date.now()-t.timer.startTime;return Math.max(total-acc,0);}
+  else{let elapsed=t.timer.elapsed||0;if(t.timer.running&&t.timer.startTime)elapsed+=Date.now()-t.timer.startTime;return elapsed;}
+}
+function formatTimerMs(ms){if(ms===null)return'--:--';const s=Math.floor(ms/1000),h=Math.floor(s/3600),m=Math.floor((s%3600)/60),sec=s%60;return h>0?`${h}:${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`:`${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;}
+function checkTimerCompletion(t){if(!t||!t.timer||!t.timer.enabled||t.timer.completed)return false;const rem=getTimerRemainingMs(t);if(rem!==null&&rem<=0){t.timer.completed=true;t.timer.running=false;t.timer.startTime=null;return true;}return false;}
+function startTimerEngine(){
+  if(timerInterval)clearInterval(timerInterval);
+  timerInterval=setInterval(()=>{
+    let completed=false;
+    Object.values(data.days).forEach(d=>{if(d&&d.tasks)d.tasks.forEach(t=>{if(checkTimerCompletion(t))completed=true;});});
+    if(completed){save();playTimerDone();showToast('⏰ Timer finished!');speak('Timer complete, Boss.');}
+    updateAllTimerDisplays();
+  },1000);
+}
+function updateAllTimerDisplays(){
+  document.querySelectorAll('.timer-display').forEach(el=>{
+    const id=parseInt(el.dataset.taskId); const t=getTaskById(id); if(!t||!t.timer||!t.timer.enabled)return;
+    const rem=getTimerRemainingMs(t); el.textContent=(t.timer.mode==='time'?'⏰ ':(t.timer.mode==='countdown'?'⏳ ':'⏱ '))+formatTimerMs(rem);
+    if(t.timer.completed)el.textContent='✅ DONE';
+  });
+}
+
+function renderTasks(){
+  const list=document.getElementById('task-list'); if(!list)return; const d=data.days[data.currentDay]; if(!d)return;
+  const tasks=d.tasks, per=xpPerTask(data.currentDay); list.innerHTML='';
+  if(!tasks.length){list.innerHTML='<li class="empty-msg">— NO ACTIVE QUESTS —</li>';return;}
+  tasks.forEach((t,i)=>{
+    const li=document.createElement('li'); li.className='task-row';
+    const timerBtnCls=t.timer?.enabled?' active':'';
+    li.innerHTML=`
+      <span class="task-num">${String(i+1).padStart(2,'0')}</span>
+      <input type="checkbox" ${t.done?'checked':''} onchange="toggle(${t.id})">
+      <span class="task-name${t.done?' done':''}">${t.name}${t.carried?'<span class="carry-badge">↻ CARRIED</span>':''}</span>
+      <span class="task-xp${t.done?' earned':''}">+${per} XP</span>
+      <button class="timer-toggle-btn${timerBtnCls}" onclick="event.stopPropagation();toggleTimerEnabled(${t.id})">🕐</button>
+      <button class="task-del" onclick="del(${t.id})">✕</button>`;
+    list.appendChild(li);
+    if(t.timer?.enabled){
+      const sub=document.createElement('li'); sub.className='timer-sub-row';
+      const isCD=t.timer.mode==='countdown', isSW=t.timer.mode==='stopwatch', isTIME=t.timer.mode==='time';
+      sub.innerHTML=`
+        <button class="timer-mode-btn${isCD?' active-mode':''}" onclick="setTimerMode(${t.id},'countdown')">CD</button>
+        <button class="timer-mode-btn${isSW?' active-mode':''}" onclick="setTimerMode(${t.id},'stopwatch')">SW</button>
+        <button class="timer-mode-btn${isTIME?' active-mode':''}" onclick="setTimerMode(${t.id},'time')">⏰</button>
+        ${isCD?`<input class="timer-duration-input" type="number" value="${t.timer.duration}" min="1" max="480" onchange="setTimerDuration(${t.id},this.value)"> min`:''}
+        ${isTIME?`<input class="timer-time-input" type="time" value="${t.timer.targetTime||'12:00'}" onchange="setTimerTargetTime(${t.id},this.value)">`:''}
+        ${t.timer.completed?`<button class="timer-ctrl-btn" onclick="resetTimer(${t.id})">↺</button>`
+          :(isTIME?`<button class="timer-ctrl-btn" onclick="resetTimer(${t.id})">↺</button>`
+            :`${t.timer.running?`<button class="timer-ctrl-btn" onclick="pauseTimer(${t.id})">⏸</button>`:`<button class="timer-ctrl-btn start-btn" onclick="startTimer(${t.id})">▶</button>`}
+              <button class="timer-ctrl-btn" onclick="resetTimer(${t.id})">↺</button>`)}
+        <span class="timer-display" data-task-id="${t.id}">${t.timer.completed?'✅ DONE':(isTIME?'⏰ ':(isCD?'⏳ ':'⏱ '))+formatTimerMs(getTimerRemainingMs(t))}</span>`;
+      list.appendChild(sub);
+    }
+  });
+}
+
+function closeLvlOverlay(){document.getElementById('lvl-overlay').classList.remove('show');}
+function closeRankOverlay(){document.getElementById('rank-overlay').classList.remove('show');}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2200);}
+
+let dsRange=7;
+function openDataStore(){document.getElementById('datastore-page').classList.add('show');renderDataStore();}
+function closeDataStore(){document.getElementById('datastore-page').classList.remove('show');}
+function escapeHtml(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML;}
+
+function renderDataStore(){
+  const body=document.getElementById('ds-body'); const archive=data.archive||[];
+  if(!archive.length){body.innerHTML='<div class="ds-empty">— NO ARCHIVED DAYS YET —</div>';return;}
+
+  const totalEarned=archive.reduce((s,a)=>s+a.earnedXP,0), cleared=archive.filter(a=>a.cleared).length;
+  let html=`
+    <div class="ds-summary-grid">
+      <div class="ds-summary-box"><div class="ds-summary-val">${archive.length}</div><div class="ds-summary-lbl">Days Logged</div></div>
+      <div class="ds-summary-box"><div class="ds-summary-val">${cleared}</div><div class="ds-summary-lbl">Full Clears</div></div>
+      <div class="ds-summary-box"><div class="ds-summary-val">${totalEarned}</div><div class="ds-summary-lbl">Total XP Earned</div></div>
+      <div class="ds-summary-box"><div class="ds-summary-val">${archive.length?Math.round((archive.reduce((s,a)=>s+(a.poolXP?a.earnedXP/a.poolXP:0),0)/archive.length)*100):0}%</div><div class="ds-summary-lbl">Avg Daily Clear</div></div>
+    </div>`;
+
+  html+='<div class="ds-section-lbl">[ XP TREND ]</div>';
+  html+='<div class="ds-range-tabs"><div class="ds-range-tab'+(dsRange===7?' active':'')+'" onclick="setDsRange(7)">7 DAYS</div><div class="ds-range-tab'+(dsRange===30?' active':'')+'" onclick="setDsRange(30)">30 DAYS</div><div class="ds-range-tab'+(dsRange==='all'?' active':'')+'" onclick="setDsRange(\'all\')">ALL TIME</div></div>';
+  html+='<div class="ds-chart-wrap"><canvas id="ds-canvas" style="width:100%;display:block;"></canvas></div>';
+
+  html+='<div class="ds-section-lbl">[ 15-DAY CYCLE TRACKING ]</div>';
+  html+=buildCycleTrackingSection();
+
+  body.innerHTML=html;
+  drawDsChart(dsGetEntries());
+  setTimeout(()=>{const sel=document.getElementById('cycle-select'); if(sel) drawCycleChart(sel.value);},10);
+}
+
+function buildCycleTrackingSection(){
+  const cycles=getAllCycles(); if(!cycles.length)return '<div class="ds-empty">No cycle data yet.</div>';
+  let options=''; cycles.forEach(c=>options+=`<option value="${c.id}" ${c.id==='current'?'selected':''}>${c.label}</option>`);
+  return `<div style="margin-bottom:12px;"><select id="cycle-select" onchange="drawCycleChart(this.value)" style="background:var(--card);border:1px solid var(--border);color:#fff;font-family:var(--mono);padding:6px 12px;border-radius:2px;">${options}</select></div>
+    <div class="ds-chart-wrap"><canvas id="cycle-canvas" style="width:100%;display:block;"></canvas></div>`;
+}
+
+function getAllCycles(){
+  const cycles=[]; if(data.cycleStartDate) cycles.push({id:'current',label:`Current Cycle (${toRoman(data.cycleNumber||1)})`,startDate:data.cycleStartDate,goal:data.cycleGoal||'No goal',number:data.cycleNumber||1});
+  (data.cyclesArchive||[]).forEach(c=>cycles.push({id:'archived_'+c.number,label:`Cycle ${toRoman(c.number)} (${formatDate(c.startDate)})`,startDate:c.startDate,goal:c.goal,number:c.number}));
+  return cycles;
+}
+
+function drawCycleChart(cycleId){
+  const canvas=document.getElementById('cycle-canvas'); if(!canvas)return;
+  const cycles=getAllCycles(), cycle=cycles.find(c=>c.id===cycleId); if(!cycle)return;
+  const dayData=[]; for(let i=0;i<15;i++){const date=dateStrOffset(cycle.startDate,i); let earned=0; Object.values(data.days).forEach(d=>{if(d.date===date)earned=dayEarned(parseInt(Object.keys(data.days).find(k=>data.days[k]===d)));}); dayData.push({date,earned});}
+  const wrap=canvas.parentElement,cssWidth=wrap.clientWidth-20,cssHeight=220,dpr=window.devicePixelRatio||1;
+  canvas.width=cssWidth*dpr; canvas.height=cssHeight*dpr; canvas.style.width=cssWidth+'px'; canvas.style.height=cssHeight+'px';
+  const ctx=canvas.getContext('2d'); ctx.scale(dpr,dpr); ctx.clearRect(0,0,cssWidth,cssHeight);
+  const padL=34,padR=8,padT=20,padB=30,chartW=cssWidth-padL-padR,chartH=cssHeight-padT-padB,maxXP=Math.max(100,...dayData.map(d=>d.earned)),niceMax=Math.ceil(maxXP/50)*50;
+  ctx.strokeStyle='rgba(255,255,255,0.06)'; ctx.fillStyle='#4a5568'; ctx.font='9px monospace'; ctx.textAlign='right';
+  for(let i=0;i<=4;i++){const y=padT+chartH-(chartH*(i/4)),val=Math.round(niceMax*(i/4)); ctx.beginPath(); ctx.moveTo(padL,y); ctx.lineTo(padL+chartW,y); ctx.stroke(); ctx.fillText(val,padL-6,y+3);}
+  const targetY=padT+chartH-(chartH*(100/niceMax)); ctx.strokeStyle='#f59e0b'; ctx.lineWidth=1; ctx.setLineDash([4,4]); ctx.beginPath(); ctx.moveTo(padL,targetY); ctx.lineTo(padL+chartW,targetY); ctx.stroke(); ctx.setLineDash([]);
+  const barW=Math.max(Math.min(chartW/15*0.5,18),3); dayData.forEach((d,i)=>{const x=padL+(i+0.5)*(chartW/15)-barW/2,barH=(d.earned/niceMax)*chartH,y=padT+chartH-barH; ctx.fillStyle=d.earned>=100?'#10b981':'#f59e0b'; ctx.fillRect(x,y,barW,barH); ctx.fillStyle='#4a5568'; ctx.font='8px monospace'; ctx.textAlign='center'; ctx.fillText('D'+(i+1),padL+(i+0.5)*(chartW/15),cssHeight-10);});
+}
+
+function setDsRange(r){dsRange=r; renderDataStore();}
+function dsGetEntries(){const all=(data.archive||[]).slice(); return dsRange==='all'?all:all.slice(Math.max(all.length-dsRange,0));}
+function drawDsChart(entries){
+  const canvas=document.getElementById('ds-canvas'); if(!canvas||!entries.length)return;
+  const wrap=canvas.parentElement,cssWidth=wrap.clientWidth-20,cssHeight=200,dpr=window.devicePixelRatio||1;
+  canvas.width=cssWidth*dpr; canvas.height=cssHeight*dpr; canvas.style.width=cssWidth+'px'; canvas.style.height=cssHeight+'px';
+  const ctx=canvas.getContext('2d'); ctx.scale(dpr,dpr); ctx.clearRect(0,0,cssWidth,cssHeight);
+  const padL=34,padR=8,padT=14,padB=26,chartW=cssWidth-padL-padR,chartH=cssHeight-padT-padB,maxPool=Math.max(...entries.map(e=>e.poolXP),100),niceMax=Math.ceil(maxPool/50)*50;
+  ctx.strokeStyle='rgba(255,255,255,0.06)'; ctx.fillStyle='#4a5568'; ctx.font='9px monospace'; ctx.textAlign='right';
+  for(let i=0;i<=4;i++){const y=padT+chartH-(chartH*(i/4)),val=Math.round(niceMax*(i/4)); ctx.beginPath(); ctx.moveTo(padL,y); ctx.lineTo(padL+chartW,y); ctx.stroke(); ctx.fillText(val,padL-6,y+3);}
+  const n=entries.length,slotW=chartW/n,barW=Math.max(Math.min(slotW*0.5,28),3); entries.forEach((e,i)=>{const cx=padL+slotW*i+slotW/2,poolH=(e.poolXP/niceMax)*chartH,earnH=(e.earnedXP/niceMax)*chartH,poolY=padT+chartH-poolH,earnY=padT+chartH-earnH; ctx.strokeStyle='rgba(74,85,104,0.6)'; ctx.lineWidth=1; ctx.strokeRect(cx-barW/2,poolY,barW,poolH); ctx.fillStyle=e.cleared?'#10b981':'#f59e0b'; ctx.fillRect(cx-barW/2,earnY,barW,Math.max(earnH,1)); if(e.cleared){ctx.beginPath();ctx.arc(cx,poolY-8,3,0,Math.PI*2);ctx.fillStyle='#10b981';ctx.fill();}});
+  const labelEvery=n<=10?1:Math.ceil(n/8); for(let i=0;i<n;i++){if(i%labelEvery===0||i===n-1){ctx.fillStyle='#4a5568';ctx.font='8px monospace';ctx.textAlign='center';ctx.fillText(parseInt(entries[i].date.split('-')[2]),padL+slotW*i+slotW/2,cssHeight-8);}}
+}
+
+function boot(){
+  const bar=document.getElementById('boot-bar'), status=document.getElementById('boot-status');
+  const msgs=['INITIALIZING NEURAL LINK...','LOADING HUNTER DATA...','CALIBRATING RANK ENGINE...','SYNCING QUEST LOGS...','ACTIVATING TIMER MODULE...','AWAKENING PROTOCOLS ACTIVE...','SYSTEM READY ∙ ARISE HUNTER'];
+  let pct=0,mi=0; playBoot();
+  const iv=setInterval(()=>{pct+=2+Math.random()*3;if(pct>100)pct=100;bar.style.width=pct+'%'; const newMi=Math.floor((pct/100)*msgs.length);if(newMi!==mi){mi=newMi;status.textContent=msgs[mi];}
+    if(pct>=100){clearInterval(iv);status.textContent=msgs[msgs.length-1];
+      setTimeout(()=>{const bs=document.getElementById('boot-screen');bs.style.transition='opacity 0.6s';bs.style.opacity='0';
+        setTimeout(()=>{bs.style.display='none';document.getElementById('main').classList.add('visible');load();},600);
+      },500);
+  }},40);
+}
+window.addEventListener('load',boot);
 </script>
 </body>
 </html>
